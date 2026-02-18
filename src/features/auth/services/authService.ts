@@ -14,12 +14,12 @@ import { api } from "@/lib/api";
 
 export const authService = {
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
-    const { data } = await api.post<LoginResponse>("/auth/login", credentials);
+    const { data } = await api.post<LoginResponse>("/login", credentials);
     return data;
   },
 
   signup: async (payload: SignupRequest): Promise<SignupResponse> => {
-    const { data } = await api.post<SignupResponse>("/auth/signup", payload);
+    const { data } = await api.post<SignupResponse>("/signup", payload);
     return data;
   },
 
@@ -27,7 +27,7 @@ export const authService = {
     payload: VerifyEmailRequest,
   ): Promise<VerifyEmailResponse> => {
     const { data } = await api.post<VerifyEmailResponse>(
-      "/auth/verify-email",
+      "/confirm-email",
       payload,
     );
     return data;
