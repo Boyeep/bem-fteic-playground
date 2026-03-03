@@ -10,6 +10,7 @@ import {
   VerifyEmailRequest,
   VerifyEmailResponse,
 } from "@/features/auth/types";
+import { profileService } from "@/features/auth/services/profileService";
 import { supabase } from "@/lib/supabase";
 
 export const authService = {
@@ -23,7 +24,14 @@ export const authService = {
       throw new Error(error?.message || "Login failed");
     }
 
-    const username =
+    let profile = null;
+    try {
+      profile = await profileService.ensureForUser(data.user);
+    } catch {
+      profile = null;
+    }
+
+    const fallbackUsername =
       typeof data.user.user_metadata?.username === "string"
         ? data.user.user_metadata.username
         : data.user.email || "";
@@ -31,8 +39,8 @@ export const authService = {
     return {
       user: {
         id: data.user.id,
-        email: data.user.email || "",
-        username,
+        email: profile?.email || data.user.email || "",
+        username: profile?.username || fallbackUsername,
         createdAt: data.user.created_at,
       },
       accessToken: data.session.access_token,
@@ -41,7 +49,7 @@ export const authService = {
 
   signup: async (payload: SignupRequest): Promise<SignupResponse> => {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: payload.email,
       password: payload.password,
       options: {
@@ -54,6 +62,14 @@ export const authService = {
 
     if (error) {
       throw new Error(error.message || "Signup failed");
+    }
+
+    if (data.user) {
+      try {
+        await profileService.ensureForUser(data.user);
+      } catch {
+        // No-op: auth signup should continue even if profile table is not ready.
+      }
     }
 
     return {
@@ -91,7 +107,14 @@ export const authService = {
       throw new Error(error?.message || "Failed to create session");
     }
 
-    const username =
+    let profile = null;
+    try {
+      profile = await profileService.ensureForUser(user);
+    } catch {
+      profile = null;
+    }
+
+    const fallbackUsername =
       typeof user.user_metadata?.username === "string"
         ? user.user_metadata.username
         : user.email || "";
@@ -100,8 +123,8 @@ export const authService = {
       message: "Email verified successfully!",
       user: {
         id: user.id,
-        email: user.email || "",
-        username,
+        email: profile?.email || user.email || "",
+        username: profile?.username || fallbackUsername,
         createdAt: user.created_at,
       },
       accessToken: session.access_token,

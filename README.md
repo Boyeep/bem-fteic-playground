@@ -15,6 +15,42 @@ Auth routes:
 - `/signup` (creates account and sends verification email)
 - `/confirm-email` (handles Supabase callback and creates session)
 
+## Supabase Database Setup (profiles)
+
+Run this SQL in `Supabase -> SQL Editor`:
+
+```sql
+create table if not exists public.profiles (
+  id uuid primary key references auth.users (id) on delete cascade,
+  email text not null,
+  username text not null,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.profiles enable row level security;
+
+create policy "profiles_select_own"
+on public.profiles
+for select
+to authenticated
+using (auth.uid() = id);
+
+create policy "profiles_insert_own"
+on public.profiles
+for insert
+to authenticated
+with check (auth.uid() = id);
+
+create policy "profiles_update_own"
+on public.profiles
+for update
+to authenticated
+using (auth.uid() = id)
+with check (auth.uid() = id);
+```
+
+This project now reads/writes profile name + email through `public.profiles`.
+
 nama website di package.json untuk sementara aku bikin "bem-fteic-front-end"
 
 next-sitemap.config.js perlu diubah

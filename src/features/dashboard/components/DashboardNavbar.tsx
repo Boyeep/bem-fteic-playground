@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
+import { profileService } from "@/features/auth/services/profileService";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import ProfileDropdown from "@/features/dashboard/components/ProfileDropdown";
 import ProfileEditNameDropdown from "@/features/dashboard/components/ProfileEditNameDropdown";
@@ -28,34 +29,49 @@ export default function DashboardNavbar() {
   const displayEmail = user?.email?.trim() || "-";
 
   useEffect(() => {
-    const mapSupabaseUser = (supabaseUser: {
-      id: string;
-      email?: string | null;
-      created_at: string;
-      user_metadata?: { username?: unknown };
-    }) => ({
-      id: supabaseUser.id,
-      email: supabaseUser.email || "",
-      username:
-        typeof supabaseUser.user_metadata?.username === "string"
-          ? supabaseUser.user_metadata.username
-          : supabaseUser.email || "",
-      createdAt: supabaseUser.created_at,
-    });
-
     const syncUser = async () => {
       const { data, error } = await supabase.auth.getUser();
       if (error || !data.user) return;
-      setUser(mapSupabaseUser(data.user));
+      let profile = null;
+      try {
+        profile = await profileService.ensureForUser(data.user);
+      } catch {
+        profile = null;
+      }
+      setUser({
+        id: data.user.id,
+        email: profile?.email || data.user.email || "",
+        username:
+          profile?.username ||
+          (typeof data.user.user_metadata?.username === "string"
+            ? data.user.user_metadata.username
+            : data.user.email || ""),
+        createdAt: data.user.created_at,
+      });
     };
 
     void syncUser();
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (!session?.user) return;
-      setUser(mapSupabaseUser(session.user));
+      let profile = null;
+      try {
+        profile = await profileService.ensureForUser(session.user);
+      } catch {
+        profile = null;
+      }
+      setUser({
+        id: session.user.id,
+        email: profile?.email || session.user.email || "",
+        username:
+          profile?.username ||
+          (typeof session.user.user_metadata?.username === "string"
+            ? session.user.user_metadata.username
+            : session.user.email || ""),
+        createdAt: session.user.created_at,
+      });
     });
 
     return () => {
@@ -133,33 +149,40 @@ export default function DashboardNavbar() {
                 }
 
                 setIsSavingName(true);
-                const { data, error } = await supabase.auth.updateUser({
-                  data: { username: nextName },
-                });
-
-                if (error) {
-                  toast.error(error.message || "Gagal mengubah nama akun.");
-                  setIsSavingName(false);
-                  return;
-                }
-
-                if (data.user) {
-                  setUser({
-                    id: data.user.id,
-                    email: data.user.email || "",
-                    username:
-                      typeof data.user.user_metadata?.username === "string"
-                        ? data.user.user_metadata.username
-                        : data.user.email || "",
-                    createdAt: data.user.created_at,
+                try {
+                  const { error } = await supabase.auth.updateUser({
+                    data: { username: nextName },
                   });
-                } else if (user) {
-                  setUser({ ...user, username: nextName });
-                }
 
-                toast.success("Nama akun berhasil diubah.");
-                setIsSavingName(false);
-                setPopupMode("menu");
+                  if (error) {
+                    throw new Error(
+                      error.message || "Gagal mengubah nama akun.",
+                    );
+                  }
+
+                  if (user) {
+                    const profile = await profileService.updateName(
+                      user.id,
+                      nextName,
+                    );
+                    setUser({
+                      ...user,
+                      email: profile.email || user.email,
+                      username: profile.username,
+                    });
+                  }
+
+                  toast.success("Nama akun berhasil diubah.");
+                  setPopupMode("menu");
+                } catch (error) {
+                  const message =
+                    error instanceof Error
+                      ? error.message
+                      : "Gagal mengubah nama akun.";
+                  toast.error(message);
+                } finally {
+                  setIsSavingName(false);
+                }
               }}
             />
           )}
