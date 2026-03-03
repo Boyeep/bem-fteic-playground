@@ -172,4 +172,12 @@ export const galeriService = {
 
     return { item: mapRow(data as GaleriRow) };
   },
+
+  deleteGaleri: async (id: string): Promise<void> => {
+    const { error } = await supabase.from("galeri").delete().eq("id", id);
+
+    if (error) {
+      throw new Error(error.message || "Failed to delete galeri item");
+    }
+  },
 };

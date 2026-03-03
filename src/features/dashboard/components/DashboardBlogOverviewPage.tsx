@@ -1,20 +1,50 @@
 "use client";
 
-import { Pencil } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
+import { blogService } from "@/features/blog/services/blogService";
 import Pagination from "@/features/blog/components/Pagination";
 import { useDashboardBlogs } from "@/features/blog/hooks/useDashboardBlogs";
+import DeleteConfirmModal from "@/features/dashboard/components/DeleteConfirmModal";
 
 const PAGE_SIZE = 8;
 
 export default function DashboardBlogOverviewPage() {
+  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+  const [selectedDeleteId, setSelectedDeleteId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { data, isPending, isError, error } = useDashboardBlogs({
     page,
     limit: PAGE_SIZE,
   });
+
+  const handleDelete = async () => {
+    if (!selectedDeleteId || isDeleting) return;
+
+    setIsDeleting(true);
+    try {
+      await blogService.deleteBlog(selectedDeleteId);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["dashboard-blogs"] }),
+        queryClient.invalidateQueries({ queryKey: ["blogs"] }),
+      ]);
+      toast.success("Blog berhasil dihapus.");
+      setSelectedDeleteId(null);
+    } catch (deleteError) {
+      const message =
+        deleteError instanceof Error
+          ? deleteError.message
+          : "Gagal menghapus blog.";
+      toast.error(message);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-[#F3F4F6] px-4 py-8 md:px-8">
@@ -105,13 +135,23 @@ export default function DashboardBlogOverviewPage() {
                     </span>
                   </td>
                   <td className="px-3 py-2">
-                    <Link
-                      href={`/dashboard/blog/edit?id=${blog.id}`}
-                      aria-label={`Edit ${blog.title}`}
-                      className="inline-flex text-black transition-colors hover:text-blue-600"
-                    >
-                      <Pencil size={14} />
-                    </Link>
+                    <div className="flex items-center gap-3">
+                      <Link
+                        href={`/dashboard/blog/edit?id=${blog.id}`}
+                        aria-label={`Edit ${blog.title}`}
+                        className="inline-flex text-black transition-colors hover:text-blue-600"
+                      >
+                        <Pencil size={14} />
+                      </Link>
+                      <button
+                        type="button"
+                        aria-label={`Delete ${blog.title}`}
+                        className="inline-flex text-black transition-colors hover:text-red-600"
+                        onClick={() => setSelectedDeleteId(blog.id)}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -127,6 +167,18 @@ export default function DashboardBlogOverviewPage() {
           />
         ) : null}
       </section>
+
+      <DeleteConfirmModal
+        isOpen={Boolean(selectedDeleteId)}
+        isLoading={isDeleting}
+        onCancel={() => {
+          if (isDeleting) return;
+          setSelectedDeleteId(null);
+        }}
+        onConfirm={() => {
+          void handleDelete();
+        }}
+      />
     </main>
   );
 }

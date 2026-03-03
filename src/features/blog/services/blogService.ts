@@ -269,4 +269,12 @@ export const blogService = {
 
     return { item: mapRowToBlog(data as BlogRow) };
   },
+
+  deleteBlog: async (id: string): Promise<void> => {
+    const { error } = await supabase.from("blogs").delete().eq("id", id);
+
+    if (error) {
+      throw new Error(error.message || "Failed to delete blog");
+    }
+  },
 };

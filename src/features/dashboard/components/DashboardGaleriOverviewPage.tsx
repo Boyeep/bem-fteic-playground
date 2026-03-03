@@ -1,21 +1,50 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
+import DeleteConfirmModal from "@/features/dashboard/components/DeleteConfirmModal";
+import { galeriService } from "@/features/galeri/services/galeriService";
 import GaleriPagination from "@/features/galeri/components/GaleriPagination";
 import { useDashboardGaleri } from "@/features/galeri/hooks/useDashboardGaleri";
 
 const PAGE_SIZE = 6;
 
 export default function DashboardGaleriOverviewPage() {
+  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+  const [selectedDeleteId, setSelectedDeleteId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { data, isPending, isError, error } = useDashboardGaleri({
     page,
     limit: PAGE_SIZE,
   });
+
+  const handleDelete = async () => {
+    if (!selectedDeleteId || isDeleting) return;
+
+    setIsDeleting(true);
+    try {
+      await galeriService.deleteGaleri(selectedDeleteId);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["dashboard-galeri"] }),
+        queryClient.invalidateQueries({ queryKey: ["galeri"] }),
+      ]);
+      toast.success("Galeri berhasil dihapus.");
+      setSelectedDeleteId(null);
+    } catch (deleteError) {
+      const message =
+        deleteError instanceof Error
+          ? deleteError.message
+          : "Gagal menghapus galeri.";
+      toast.error(message);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-[#F3F4F6] px-4 py-8 md:px-8">
@@ -69,9 +98,7 @@ export default function DashboardGaleriOverviewPage() {
                     <button
                       type="button"
                       className="inline-flex items-center gap-1 text-red-600"
-                      onClick={() =>
-                        toast("Delete belum diaktifkan untuk galeri.")
-                      }
+                      onClick={() => setSelectedDeleteId(item.id)}
                     >
                       <Trash2 size={12} />
                       Hapus
@@ -91,6 +118,18 @@ export default function DashboardGaleriOverviewPage() {
           />
         ) : null}
       </section>
+
+      <DeleteConfirmModal
+        isOpen={Boolean(selectedDeleteId)}
+        isLoading={isDeleting}
+        onCancel={() => {
+          if (isDeleting) return;
+          setSelectedDeleteId(null);
+        }}
+        onConfirm={() => {
+          void handleDelete();
+        }}
+      />
     </main>
   );
 }

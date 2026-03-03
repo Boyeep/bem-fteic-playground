@@ -16,6 +16,7 @@ export interface ActionRow {
 interface ActionTableProps {
   rows: ActionRow[];
   getEditHref?: (row: ActionRow) => string;
+  onDelete?: (row: ActionRow) => void;
 }
 
 function toBadgeVariant(status: ActionStatus) {
@@ -31,7 +32,11 @@ function toBadgeVariant(status: ActionStatus) {
   }
 }
 
-export default function ActionTable({ rows, getEditHref }: ActionTableProps) {
+export default function ActionTable({
+  rows,
+  getEditHref,
+  onDelete,
+}: ActionTableProps) {
   return (
     <div className="overflow-x-auto border border-[#E5E7EB] bg-white">
       <table className="w-full min-w-[620px] table-fixed">
@@ -105,6 +110,7 @@ export default function ActionTable({ rows, getEditHref }: ActionTableProps) {
                     type="button"
                     aria-label={`Delete ${row.title}`}
                     className="transition-colors hover:text-red-600"
+                    onClick={() => onDelete?.(row)}
                   >
                     <Trash2 size={16} />
                   </button>

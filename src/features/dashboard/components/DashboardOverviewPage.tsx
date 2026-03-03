@@ -1,11 +1,17 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 import { useDashboardBlogs } from "@/features/blog/hooks/useDashboardBlogs";
+import { blogService } from "@/features/blog/services/blogService";
+import DeleteConfirmModal from "@/features/dashboard/components/DeleteConfirmModal";
 import { useDashboardEvents } from "@/features/event/hooks/useDashboardEvents";
 import { useVisitorCount } from "@/features/analytics/hooks/useVisitorCount";
+import { eventService } from "@/features/event/services/eventService";
 import { useDashboardGaleri } from "@/features/galeri/hooks/useDashboardGaleri";
 import ActionTable, {
   type ActionRow,
@@ -13,6 +19,12 @@ import ActionTable, {
 import StatCard from "@/features/dashboard/components/StatCard";
 
 export default function DashboardOverviewPage() {
+  const queryClient = useQueryClient();
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: string;
+    type: "blog" | "event";
+  } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { data } = useDashboardBlogs({ page: 1, limit: 5 });
   const { data: eventData } = useDashboardEvents({ page: 1, limit: 5 });
   const { data: galeriData } = useDashboardGaleri({ page: 1, limit: 9 });
@@ -34,6 +46,38 @@ export default function DashboardOverviewPage() {
       cover: event.coverImage,
       status: event.status,
     })) || [];
+
+  const handleDelete = async () => {
+    if (!deleteTarget || isDeleting) return;
+
+    setIsDeleting(true);
+    try {
+      if (deleteTarget.type === "blog") {
+        await blogService.deleteBlog(deleteTarget.id);
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["dashboard-blogs"] }),
+          queryClient.invalidateQueries({ queryKey: ["blogs"] }),
+        ]);
+        toast.success("Blog berhasil dihapus.");
+      } else {
+        await eventService.deleteEvent(deleteTarget.id);
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ["dashboard-events"] }),
+          queryClient.invalidateQueries({ queryKey: ["events"] }),
+        ]);
+        toast.success("Event berhasil dihapus.");
+      }
+      setDeleteTarget(null);
+    } catch (deleteError) {
+      const message =
+        deleteError instanceof Error
+          ? deleteError.message
+          : "Gagal menghapus item.";
+      toast.error(message);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-[#F3F4F6] px-4 py-6 text-black md:px-8 md:py-10">
@@ -82,6 +126,9 @@ export default function DashboardOverviewPage() {
               <ActionTable
                 rows={recentBlogs}
                 getEditHref={(row) => `/dashboard/blog/edit?id=${row.id}`}
+                onDelete={(row) =>
+                  setDeleteTarget({ id: row.id, type: "blog" })
+                }
               />
             </section>
 
@@ -101,6 +148,9 @@ export default function DashboardOverviewPage() {
               <ActionTable
                 rows={recentEvents}
                 getEditHref={(row) => `/dashboard/event/edit?id=${row.id}`}
+                onDelete={(row) =>
+                  setDeleteTarget({ id: row.id, type: "event" })
+                }
               />
             </section>
           </div>
@@ -162,6 +212,18 @@ export default function DashboardOverviewPage() {
           </div>
         </section>
       </div>
+
+      <DeleteConfirmModal
+        isOpen={Boolean(deleteTarget)}
+        isLoading={isDeleting}
+        onCancel={() => {
+          if (isDeleting) return;
+          setDeleteTarget(null);
+        }}
+        onConfirm={() => {
+          void handleDelete();
+        }}
+      />
     </main>
   );
 }
