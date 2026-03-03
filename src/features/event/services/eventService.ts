@@ -196,10 +196,18 @@ export const eventService = {
   },
 
   deleteEvent: async (id: string): Promise<void> => {
-    const { error } = await supabase.from("events").delete().eq("id", id);
+    const { data, error } = await supabase
+      .from("events")
+      .delete()
+      .eq("id", id)
+      .select("id");
 
     if (error) {
       throw new Error(error.message || "Failed to delete event");
+    }
+
+    if (!data || data.length === 0) {
+      throw new Error("Event tidak terhapus. Cek policy DELETE di Supabase.");
     }
   },
 };

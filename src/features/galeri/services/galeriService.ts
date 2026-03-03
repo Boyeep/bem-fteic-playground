@@ -174,10 +174,18 @@ export const galeriService = {
   },
 
   deleteGaleri: async (id: string): Promise<void> => {
-    const { error } = await supabase.from("galeri").delete().eq("id", id);
+    const { data, error } = await supabase
+      .from("galeri")
+      .delete()
+      .eq("id", id)
+      .select("id");
 
     if (error) {
       throw new Error(error.message || "Failed to delete galeri item");
+    }
+
+    if (!data || data.length === 0) {
+      throw new Error("Galeri tidak terhapus. Cek policy DELETE di Supabase.");
     }
   },
 };

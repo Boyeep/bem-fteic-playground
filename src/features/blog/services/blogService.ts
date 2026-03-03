@@ -271,10 +271,18 @@ export const blogService = {
   },
 
   deleteBlog: async (id: string): Promise<void> => {
-    const { error } = await supabase.from("blogs").delete().eq("id", id);
+    const { data, error } = await supabase
+      .from("blogs")
+      .delete()
+      .eq("id", id)
+      .select("id");
 
     if (error) {
       throw new Error(error.message || "Failed to delete blog");
+    }
+
+    if (!data || data.length === 0) {
+      throw new Error("Blog tidak terhapus. Cek policy DELETE di Supabase.");
     }
   },
 };
