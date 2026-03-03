@@ -43,7 +43,7 @@ export default function ProfileDropdown({
       <button
         type="button"
         onClick={onEditName}
-        className="mb-2 inline-flex items-center gap-2 text-lg text-[#1B4FE0]"
+        className="mb-2 flex w-full items-center gap-2 text-lg text-[#1B4FE0]"
       >
         <SquarePen className="h-5 w-5" />
         Edit nama akun
@@ -52,7 +52,7 @@ export default function ProfileDropdown({
       <button
         type="button"
         onClick={onEditPhoto}
-        className="inline-flex items-center gap-2 text-lg text-[#1B4FE0]"
+        className="flex w-full items-center gap-2 text-lg text-[#1B4FE0]"
       >
         <SquarePen className="h-5 w-5" />
         Edit foto

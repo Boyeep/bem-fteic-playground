@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import ProfileDropdown from "@/features/dashboard/components/ProfileDropdown";
+import ProfileEditNameDropdown from "@/features/dashboard/components/ProfileEditNameDropdown";
 
 const navItems = [
   { href: "/dashboard", label: "DASHBOARD" },
@@ -15,13 +16,13 @@ const navItems = [
 
 export default function DashboardNavbar() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [popupMode, setPopupMode] = useState<"menu" | "edit-name">("menu");
+  const [editedName, setEditedName] = useState("");
   const popupRef = useRef<HTMLDivElement | null>(null);
-  const { user } = useAuthStore();
+  const { user, setUser } = useAuthStore();
 
   const displayName = user?.username?.trim() || "NAMA AKUN";
   const displayEmail = user?.email?.trim() || "akun123@email.com";
-  const handleEditName = () => null;
-  const handleEditPhoto = () => null;
 
   useEffect(() => {
     if (!isPopupOpen) return;
@@ -30,6 +31,7 @@ export default function DashboardNavbar() {
       if (!popupRef.current) return;
       if (popupRef.current.contains(event.target as Node)) return;
       setIsPopupOpen(false);
+      setPopupMode("menu");
     };
 
     window.addEventListener("mousedown", onClickOutside);
@@ -49,7 +51,11 @@ export default function DashboardNavbar() {
 
         <button
           type="button"
-          onClick={() => setIsPopupOpen((prev) => !prev)}
+          onClick={() => {
+            setEditedName(displayName);
+            setPopupMode("menu");
+            setIsPopupOpen((prev) => !prev);
+          }}
           className="flex items-center gap-4 text-black"
           aria-label="Open profile popup"
         >
@@ -63,13 +69,37 @@ export default function DashboardNavbar() {
           ref={popupRef}
           className="absolute right-4 top-[56px] pt-2 md:right-8"
         >
-          <ProfileDropdown
-            name={displayName}
-            email={displayEmail}
-            onClose={() => setIsPopupOpen(false)}
-            onEditName={handleEditName}
-            onEditPhoto={handleEditPhoto}
-          />
+          {popupMode === "menu" ? (
+            <ProfileDropdown
+              name={displayName}
+              email={displayEmail}
+              onClose={() => {
+                setIsPopupOpen(false);
+                setPopupMode("menu");
+              }}
+              onEditName={() => setPopupMode("edit-name")}
+              onEditPhoto={() => null}
+            />
+          ) : (
+            <ProfileEditNameDropdown
+              value={editedName}
+              onChange={setEditedName}
+              onBack={() => setPopupMode("menu")}
+              onSave={() => {
+                const nextName = editedName.trim();
+                if (!nextName || !user) {
+                  setPopupMode("menu");
+                  return;
+                }
+
+                setUser({
+                  ...user,
+                  username: nextName,
+                });
+                setPopupMode("menu");
+              }}
+            />
+          )}
         </div>
       ) : null}
     </header>
