@@ -7,6 +7,7 @@ type ProfileEditNameDropdownProps = {
   onChange: (value: string) => void;
   onBack: () => void;
   onSave: () => void;
+  isSaving: boolean;
 };
 
 export default function ProfileEditNameDropdown({
@@ -14,6 +15,7 @@ export default function ProfileEditNameDropdown({
   onChange,
   onBack,
   onSave,
+  isSaving,
 }: ProfileEditNameDropdownProps) {
   return (
     <div className="w-[320px] border-b-2 border-[#365BD7] bg-[#D9D9D9] p-5 shadow-[0_10px_20px_rgba(0,0,0,0.22)]">
@@ -42,9 +44,10 @@ export default function ProfileEditNameDropdown({
       <button
         type="button"
         onClick={onSave}
-        className="h-11 w-full bg-[#E1B454] text-xl font-semibold text-black transition-opacity hover:opacity-90"
+        disabled={isSaving}
+        className="h-11 w-full bg-[#E1B454] text-xl font-semibold text-black transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-75"
       >
-        Simpan nama
+        {isSaving ? "Menyimpan..." : "Simpan nama"}
       </button>
     </div>
   );

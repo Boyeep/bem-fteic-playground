@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import ProfileDropdown from "@/features/dashboard/components/ProfileDropdown";
 import ProfileEditNameDropdown from "@/features/dashboard/components/ProfileEditNameDropdown";
+import { supabase } from "@/lib/supabase";
 
 const navItems = [
   { href: "/dashboard", label: "DASHBOARD" },
@@ -18,11 +20,48 @@ export default function DashboardNavbar() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [popupMode, setPopupMode] = useState<"menu" | "edit-name">("menu");
   const [editedName, setEditedName] = useState("");
+  const [isSavingName, setIsSavingName] = useState(false);
   const popupRef = useRef<HTMLDivElement | null>(null);
   const { user, setUser } = useAuthStore();
 
   const displayName = user?.username?.trim() || "NAMA AKUN";
-  const displayEmail = user?.email?.trim() || "akun123@email.com";
+  const displayEmail = user?.email?.trim() || "-";
+
+  useEffect(() => {
+    const mapSupabaseUser = (supabaseUser: {
+      id: string;
+      email?: string | null;
+      created_at: string;
+      user_metadata?: { username?: unknown };
+    }) => ({
+      id: supabaseUser.id,
+      email: supabaseUser.email || "",
+      username:
+        typeof supabaseUser.user_metadata?.username === "string"
+          ? supabaseUser.user_metadata.username
+          : supabaseUser.email || "",
+      createdAt: supabaseUser.created_at,
+    });
+
+    const syncUser = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data.user) return;
+      setUser(mapSupabaseUser(data.user));
+    };
+
+    void syncUser();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session?.user) return;
+      setUser(mapSupabaseUser(session.user));
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [setUser]);
 
   useEffect(() => {
     if (!isPopupOpen) return;
@@ -85,17 +124,41 @@ export default function DashboardNavbar() {
               value={editedName}
               onChange={setEditedName}
               onBack={() => setPopupMode("menu")}
-              onSave={() => {
+              isSaving={isSavingName}
+              onSave={async () => {
                 const nextName = editedName.trim();
-                if (!nextName || !user) {
-                  setPopupMode("menu");
+                if (!nextName) {
+                  toast.error("Nama tidak boleh kosong.");
                   return;
                 }
 
-                setUser({
-                  ...user,
-                  username: nextName,
+                setIsSavingName(true);
+                const { data, error } = await supabase.auth.updateUser({
+                  data: { username: nextName },
                 });
+
+                if (error) {
+                  toast.error(error.message || "Gagal mengubah nama akun.");
+                  setIsSavingName(false);
+                  return;
+                }
+
+                if (data.user) {
+                  setUser({
+                    id: data.user.id,
+                    email: data.user.email || "",
+                    username:
+                      typeof data.user.user_metadata?.username === "string"
+                        ? data.user.user_metadata.username
+                        : data.user.email || "",
+                    createdAt: data.user.created_at,
+                  });
+                } else if (user) {
+                  setUser({ ...user, username: nextName });
+                }
+
+                toast.success("Nama akun berhasil diubah.");
+                setIsSavingName(false);
                 setPopupMode("menu");
               }}
             />
