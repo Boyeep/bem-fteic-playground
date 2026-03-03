@@ -18,6 +18,18 @@ type GaleriRow = {
 const GALERI_BUCKET =
   process.env.NEXT_PUBLIC_SUPABASE_GALERI_BUCKET || "galeri-images";
 
+function createUniqueUploadPath(
+  userId: string,
+  prefix: string,
+  extension: string,
+) {
+  const randomPart =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  return `${userId}/${prefix}-${randomPart}.${extension}`;
+}
+
 function mapRow(row: GaleriRow): GaleriItem {
   return {
     id: row.id,
@@ -89,14 +101,24 @@ export const galeriService = {
 
   uploadImage: async (userId: string, file: File): Promise<string> => {
     const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const filePath = `${userId}/galeri-${Date.now()}.${extension}`;
+    let filePath = createUniqueUploadPath(userId, "galeri", extension);
 
-    const { error: uploadError } = await supabase.storage
+    let { error: uploadError } = await supabase.storage
       .from(GALERI_BUCKET)
-      .upload(filePath, file, { upsert: true });
+      .upload(filePath, file, { upsert: false });
+
+    if (uploadError?.message?.toLowerCase().includes("lock broken")) {
+      filePath = createUniqueUploadPath(userId, "galeri", extension);
+      ({ error: uploadError } = await supabase.storage
+        .from(GALERI_BUCKET)
+        .upload(filePath, file, { upsert: false }));
+    }
 
     if (uploadError) {
-      throw new Error(uploadError.message || "Failed to upload galeri image");
+      throw new Error(
+        uploadError.message ||
+          "Failed to upload galeri image. Please try again.",
+      );
     }
 
     const {

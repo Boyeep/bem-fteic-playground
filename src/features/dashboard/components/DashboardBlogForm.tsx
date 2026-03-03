@@ -60,6 +60,8 @@ export default function DashboardBlogForm({
   );
 
   const handleSubmit = async () => {
+    if (isSubmitting) return;
+
     if (!user) {
       toast.error("Kamu harus login terlebih dahulu.");
       return;

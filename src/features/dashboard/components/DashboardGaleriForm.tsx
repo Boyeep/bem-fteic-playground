@@ -47,6 +47,8 @@ export default function DashboardGaleriForm({
   );
 
   const handleSubmit = async () => {
+    if (isSubmitting) return;
+
     if (!user) {
       toast.error("Kamu harus login terlebih dahulu.");
       return;

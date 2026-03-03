@@ -24,6 +24,18 @@ type BlogRow = {
 const BLOG_COVER_BUCKET =
   process.env.NEXT_PUBLIC_SUPABASE_BLOG_COVER_BUCKET || "blog-covers";
 
+function createUniqueUploadPath(
+  userId: string,
+  prefix: string,
+  extension: string,
+) {
+  const randomPart =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  return `${userId}/${prefix}-${randomPart}.${extension}`;
+}
+
 function estimateReadingTimeMinutes(content: string) {
   const words = content.trim().split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.ceil(words / 200));
@@ -173,14 +185,24 @@ export const blogService = {
 
   uploadCover: async (userId: string, file: File): Promise<string> => {
     const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const filePath = `${userId}/cover-${Date.now()}.${extension}`;
+    let filePath = createUniqueUploadPath(userId, "cover", extension);
 
-    const { error: uploadError } = await supabase.storage
+    let { error: uploadError } = await supabase.storage
       .from(BLOG_COVER_BUCKET)
-      .upload(filePath, file, { upsert: true });
+      .upload(filePath, file, { upsert: false });
+
+    if (uploadError?.message?.toLowerCase().includes("lock broken")) {
+      filePath = createUniqueUploadPath(userId, "cover", extension);
+      ({ error: uploadError } = await supabase.storage
+        .from(BLOG_COVER_BUCKET)
+        .upload(filePath, file, { upsert: false }));
+    }
 
     if (uploadError) {
-      throw new Error(uploadError.message || "Failed to upload cover image");
+      throw new Error(
+        uploadError.message ||
+          "Failed to upload cover image. Please try again.",
+      );
     }
 
     const {

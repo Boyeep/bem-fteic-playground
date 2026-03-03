@@ -22,6 +22,18 @@ type EventRow = {
 const EVENT_COVER_BUCKET =
   process.env.NEXT_PUBLIC_SUPABASE_EVENT_COVER_BUCKET || "event-covers";
 
+function createUniqueUploadPath(
+  userId: string,
+  prefix: string,
+  extension: string,
+) {
+  const randomPart =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  return `${userId}/${prefix}-${randomPart}.${extension}`;
+}
+
 function mapRowToSummary(row: EventRow): EventSummary {
   return {
     id: row.id,
@@ -101,14 +113,24 @@ export const eventService = {
 
   uploadCover: async (userId: string, file: File): Promise<string> => {
     const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const filePath = `${userId}/event-cover-${Date.now()}.${extension}`;
+    let filePath = createUniqueUploadPath(userId, "event-cover", extension);
 
-    const { error: uploadError } = await supabase.storage
+    let { error: uploadError } = await supabase.storage
       .from(EVENT_COVER_BUCKET)
-      .upload(filePath, file, { upsert: true });
+      .upload(filePath, file, { upsert: false });
+
+    if (uploadError?.message?.toLowerCase().includes("lock broken")) {
+      filePath = createUniqueUploadPath(userId, "event-cover", extension);
+      ({ error: uploadError } = await supabase.storage
+        .from(EVENT_COVER_BUCKET)
+        .upload(filePath, file, { upsert: false }));
+    }
 
     if (uploadError) {
-      throw new Error(uploadError.message || "Failed to upload event cover");
+      throw new Error(
+        uploadError.message ||
+          "Failed to upload event cover. Please try again.",
+      );
     }
 
     const {
