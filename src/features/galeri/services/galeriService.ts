@@ -155,9 +155,9 @@ export const galeriService = {
   updateGaleri: async (
     id: string,
     payload: UpsertGaleriPayload,
-  ): Promise<GaleriDetailResponse> => {
+  ): Promise<void> => {
     const normalizedId = id.trim();
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("galeri")
       .update({
         title: payload.title,
@@ -165,22 +165,11 @@ export const galeriService = {
         image_url: payload.imageUrl,
         taken_at: payload.takenAt,
       })
-      .eq("id", normalizedId)
-      .select("id,title,link,image_url,taken_at,created_at")
-      .limit(1)
-      .maybeSingle();
+      .eq("id", normalizedId);
 
     if (error) {
       throw new Error(error.message || "Failed to update galeri item");
     }
-
-    if (!data) {
-      throw new Error(
-        "Galeri tidak ter-update. Cek policy UPDATE di Supabase.",
-      );
-    }
-
-    return { item: mapRow(data as GaleriRow) };
   },
 
   deleteGaleri: async (id: string): Promise<void> => {

@@ -173,9 +173,9 @@ export const eventService = {
   updateEvent: async (
     id: string,
     payload: UpsertEventPayload,
-  ): Promise<EventDetailResponse> => {
+  ): Promise<void> => {
     const normalizedId = id.trim();
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("events")
       .update({
         title: payload.title,
@@ -185,22 +185,11 @@ export const eventService = {
         event_date: payload.eventDate,
         status: payload.status,
       })
-      .eq("id", normalizedId)
-      .select(
-        "id,title,description,author,category,cover_image,event_date,status,created_at",
-      )
-      .limit(1)
-      .maybeSingle();
+      .eq("id", normalizedId);
 
     if (error) {
       throw new Error(error.message || "Failed to update event");
     }
-
-    if (!data) {
-      throw new Error("Event tidak ter-update. Cek policy UPDATE di Supabase.");
-    }
-
-    return { item: mapRowToSummary(data as EventRow) };
   },
 
   deleteEvent: async (id: string): Promise<void> => {
