@@ -251,6 +251,7 @@ export const blogService = {
     id: string,
     payload: UpsertBlogPayload,
   ): Promise<BlogDetailResponse> => {
+    const normalizedId = id.trim();
     const { data, error } = await supabase
       .from("blogs")
       .update({
@@ -261,14 +262,19 @@ export const blogService = {
         content: payload.content,
         status: payload.status,
       })
-      .eq("id", id)
+      .eq("id", normalizedId)
       .select(
         "id,title,excerpt,author,category,cover_image,published_at,content,status,created_at",
       )
-      .single();
+      .limit(1)
+      .maybeSingle();
 
-    if (error || !data) {
-      throw new Error(error?.message || "Failed to update blog");
+    if (error) {
+      throw new Error(error.message || "Failed to update blog");
+    }
+
+    if (!data) {
+      throw new Error("Blog tidak ter-update. Cek policy UPDATE di Supabase.");
     }
 
     return { item: mapRowToBlog(data as BlogRow) };
