@@ -157,7 +157,7 @@ export const galeriService = {
     payload: UpsertGaleriPayload,
   ): Promise<void> => {
     const normalizedId = id.trim();
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("galeri")
       .update({
         title: payload.title,
@@ -165,10 +165,18 @@ export const galeriService = {
         image_url: payload.imageUrl,
         taken_at: payload.takenAt,
       })
-      .eq("id", normalizedId);
+      .eq("id", normalizedId)
+      .select("id")
+      .maybeSingle();
 
     if (error) {
       throw new Error(error.message || "Failed to update galeri item");
+    }
+
+    if (!data) {
+      throw new Error(
+        "Galeri tidak ter-update. Data ini kemungkinan bukan milik akun yang login.",
+      );
     }
   },
 

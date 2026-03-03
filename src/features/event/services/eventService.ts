@@ -175,7 +175,7 @@ export const eventService = {
     payload: UpsertEventPayload,
   ): Promise<void> => {
     const normalizedId = id.trim();
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("events")
       .update({
         title: payload.title,
@@ -185,10 +185,18 @@ export const eventService = {
         event_date: payload.eventDate,
         status: payload.status,
       })
-      .eq("id", normalizedId);
+      .eq("id", normalizedId)
+      .select("id")
+      .maybeSingle();
 
     if (error) {
       throw new Error(error.message || "Failed to update event");
+    }
+
+    if (!data) {
+      throw new Error(
+        "Event tidak ter-update. Data ini kemungkinan bukan milik akun yang login.",
+      );
     }
   },
 
