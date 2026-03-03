@@ -138,7 +138,7 @@ export default function DashboardBlogForm({
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               placeholder="Enter blog title"
-              className="h-16 w-full border border-[#C8C8C8] bg-transparent px-4 text-lg outline-none"
+              className="h-16 w-full border border-[#C8C8C8] bg-transparent px-4 text-lg text-black placeholder:text-black/55 outline-none"
             />
           </div>
 
@@ -189,7 +189,7 @@ export default function DashboardBlogForm({
             <select
               value={category}
               onChange={(event) => setCategory(event.target.value)}
-              className="h-12 w-full border border-[#C8C8C8] bg-transparent px-3 text-sm outline-none"
+              className="h-12 w-full border border-[#C8C8C8] bg-transparent px-3 text-sm text-black outline-none"
             >
               {DEPARTMENT_OPTIONS.map((option) => (
                 <option key={option} value={option}>
@@ -206,7 +206,7 @@ export default function DashboardBlogForm({
             <select
               value={status}
               onChange={(event) => setStatus(event.target.value as BlogStatus)}
-              className="h-12 w-full border border-[#C8C8C8] bg-transparent px-3 text-sm outline-none"
+              className="h-12 w-full border border-[#C8C8C8] bg-transparent px-3 text-sm text-black outline-none"
             >
               <option value="PUBLISHED">PUBLISHED</option>
               <option value="ARCHIVED">ARCHIVED</option>
@@ -222,7 +222,7 @@ export default function DashboardBlogForm({
             value={content}
             onChange={(event) => setContent(event.target.value)}
             placeholder="Write your content here..."
-            className="h-[380px] w-full resize-none border border-[#C8C8C8] bg-transparent p-4 text-base outline-none"
+            className="h-[380px] w-full resize-none border border-[#C8C8C8] bg-transparent p-4 text-base text-black placeholder:text-black/55 outline-none"
           />
         </div>
 
