@@ -4,6 +4,7 @@ import { ChevronLeft, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
@@ -26,6 +27,7 @@ export default function DashboardGaleriForm({
   initialValues,
 }: DashboardGaleriFormProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { user } = useAuthStore();
 
   const [title, setTitle] = useState(initialValues?.title ?? "");
@@ -86,6 +88,11 @@ export default function DashboardGaleriForm({
         });
         toast.success("Galeri berhasil diperbarui.");
       }
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["galeri"] }),
+        queryClient.invalidateQueries({ queryKey: ["dashboard-galeri"] }),
+      ]);
 
       router.push("/dashboard/galeri/overview");
       router.refresh();

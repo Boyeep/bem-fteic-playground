@@ -4,6 +4,7 @@ import { ChevronLeft, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 import { blogService } from "@/features/blog/services/blogService";
@@ -38,6 +39,7 @@ export default function DashboardBlogForm({
   initialValues,
 }: DashboardBlogFormProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { user } = useAuthStore();
 
   const [title, setTitle] = useState(initialValues?.title ?? "");
@@ -104,6 +106,12 @@ export default function DashboardBlogForm({
         });
         toast.success("Blog berhasil diperbarui.");
       }
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["blogs"] }),
+        queryClient.invalidateQueries({ queryKey: ["blog"] }),
+        queryClient.invalidateQueries({ queryKey: ["dashboard-blogs"] }),
+      ]);
 
       router.push("/dashboard/blog/overview");
       router.refresh();

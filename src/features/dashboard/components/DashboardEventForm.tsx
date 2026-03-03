@@ -4,6 +4,7 @@ import { ChevronLeft, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
@@ -39,6 +40,7 @@ export default function DashboardEventForm({
   initialValues,
 }: DashboardEventFormProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { user } = useAuthStore();
 
   const [title, setTitle] = useState(initialValues?.title ?? "");
@@ -113,6 +115,11 @@ export default function DashboardEventForm({
         });
         toast.success("Event berhasil diperbarui.");
       }
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["events"] }),
+        queryClient.invalidateQueries({ queryKey: ["dashboard-events"] }),
+      ]);
 
       router.push("/dashboard/event/overview");
       router.refresh();
