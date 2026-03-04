@@ -68,16 +68,16 @@ export default function DashboardEventOverviewPage() {
                 <th className="w-[10%] px-3 py-3 text-left text-xs font-medium uppercase text-white">
                   Cover
                 </th>
-                <th className="w-[35%] px-3 py-3 text-left text-xs font-medium uppercase text-white">
+                <th className="w-[33%] px-3 py-3 text-left text-xs font-medium uppercase text-white">
                   Title
                 </th>
                 <th className="w-[16%] px-3 py-3 text-left text-xs font-medium uppercase text-white">
                   Department
                 </th>
-                <th className="w-[12%] px-3 py-3 text-left text-xs font-medium uppercase text-white">
+                <th className="w-[14%] px-3 py-3 text-left text-xs font-medium uppercase text-white">
                   Author
                 </th>
-                <th className="w-[12%] px-3 py-3 text-left text-xs font-medium uppercase text-white">
+                <th className="w-[10%] px-3 py-3 text-left text-xs font-medium uppercase text-white">
                   Date Published
                 </th>
                 <th className="w-[8%] px-3 py-3 text-left text-xs font-medium uppercase text-white">
@@ -126,7 +126,7 @@ export default function DashboardEventOverviewPage() {
                     {event.category}
                   </td>
                   <td className="px-3 py-2 text-xs text-black">
-                    {event.author}
+                    <span className="block truncate">{event.author}</span>
                   </td>
                   <td className="px-3 py-2 text-xs text-black">
                     {new Date(event.eventDate).toLocaleDateString("en-US")}
