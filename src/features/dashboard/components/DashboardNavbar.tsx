@@ -27,6 +27,8 @@ export default function DashboardNavbar() {
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const popupRef = useRef<HTMLDivElement | null>(null);
   const mobileNavRef = useRef<HTMLDivElement | null>(null);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement | null>(null);
+  const profileButtonRef = useRef<HTMLButtonElement | null>(null);
   const photoInputRef = useRef<HTMLInputElement | null>(null);
   const { user, setUser } = useAuthStore();
 
@@ -41,6 +43,8 @@ export default function DashboardNavbar() {
       const target = event.target as Node;
       if (popupRef.current?.contains(target)) return;
       if (mobileNavRef.current?.contains(target)) return;
+      if (mobileMenuButtonRef.current?.contains(target)) return;
+      if (profileButtonRef.current?.contains(target)) return;
 
       setIsPopupOpen(false);
       setPopupMode("menu");
@@ -107,27 +111,33 @@ export default function DashboardNavbar() {
         }}
       />
       <div className="mx-auto flex h-[56px] w-full max-w-[1600px] items-center justify-between px-4 md:px-8">
-        <div className="flex items-center">
+        <div className="flex items-center gap-7">
           <button
+            ref={mobileMenuButtonRef}
             type="button"
             onClick={() => setIsMobileNavOpen((prev) => !prev)}
-            className="mr-3 inline-flex h-9 w-9 items-center justify-center text-black md:hidden"
+            className="inline-flex h-9 w-9 items-center justify-center text-black md:hidden"
             aria-label="Toggle dashboard navigation menu"
             aria-expanded={isMobileNavOpen}
           >
             <Menu className="h-7 w-7" />
           </button>
+
+          <nav className="hidden items-center gap-7 text-[14px] font-normal text-black md:flex">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="hover:opacity-75"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
         </div>
 
-        <nav className="hidden items-center gap-7 text-[14px] font-normal text-black md:flex">
-          {navItems.map((item) => (
-            <Link key={item.href} href={item.href} className="hover:opacity-75">
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
         <button
+          ref={profileButtonRef}
           type="button"
           onClick={() => {
             setEditedName(displayName);
