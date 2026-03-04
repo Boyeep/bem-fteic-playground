@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { Menu } from "lucide-react";
 
 import { profileService } from "@/features/auth/services/profileService";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
@@ -120,7 +119,23 @@ export default function DashboardNavbar() {
             aria-label="Toggle dashboard navigation menu"
             aria-expanded={isMobileNavOpen}
           >
-            <Menu className="h-7 w-7" />
+            <span className="relative block h-5 w-6">
+              <span
+                className={`absolute left-0 top-0 h-0.5 w-6 bg-black transition-transform duration-200 ${
+                  isMobileNavOpen ? "translate-y-2 rotate-45" : ""
+                }`}
+              />
+              <span
+                className={`absolute left-0 top-2 h-0.5 w-6 bg-black transition-opacity duration-200 ${
+                  isMobileNavOpen ? "opacity-0" : "opacity-100"
+                }`}
+              />
+              <span
+                className={`absolute left-0 top-4 h-0.5 w-6 bg-black transition-transform duration-200 ${
+                  isMobileNavOpen ? "-translate-y-2 -rotate-45" : ""
+                }`}
+              />
+            </span>
           </button>
 
           <nav className="hidden items-center gap-7 text-[14px] font-normal text-black md:flex">
