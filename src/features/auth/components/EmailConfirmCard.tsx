@@ -74,17 +74,17 @@ export default function EmailConfirmCard() {
         </div>
 
         <Typography as="h2" className="text-xl font-bold text-black mb-2">
-          Email Verified!
+          Account successfully created
         </Typography>
         <Typography as="p" className="text-xs text-gray-500 mb-6">
-          Your email has been successfully verified. You&apos;re now logged in.
+          Your account is ready. Please log in to continue.
         </Typography>
 
         <button
-          onClick={() => router.push("/")}
+          onClick={() => router.push("/login")}
           className="w-full bg-[#EBB85E] hover:brightness-95 text-black font-bold py-3 rounded-[10px] uppercase tracking-wider transition-all"
         >
-          Go to Dashboard
+          Go to Login
         </button>
       </CardWrapper>
     );
