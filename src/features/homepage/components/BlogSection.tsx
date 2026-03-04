@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useBlogs } from "@/features/blog/hooks/useBlogs";
 
 export default function BlogSection() {
-  const { data } = useBlogs({ page: 1, limit: 5 });
+  const { data, isPending } = useBlogs({ page: 1, limit: 5 });
   const items = data?.items ?? [];
   const highlight = items[0];
   const rest = items.slice(1, 5);
@@ -25,7 +25,34 @@ export default function BlogSection() {
           </Link>
         </div>
 
-        {highlight ? (
+        {isPending ? (
+          <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-12">
+            <article className="lg:col-span-7">
+              <div className="h-72 w-full animate-pulse bg-white/20 md:h-80" />
+              <div className="mt-4 h-4 w-24 animate-pulse bg-white/20" />
+              <div className="mt-3 h-10 w-4/5 animate-pulse bg-white/20" />
+              <div className="mt-3 h-6 w-full animate-pulse bg-white/20" />
+              <div className="mt-2 h-6 w-3/4 animate-pulse bg-white/20" />
+            </article>
+
+            <div className="space-y-5 lg:col-span-5">
+              {Array.from({ length: 4 }).map((_, idx) => (
+                <article
+                  key={`blog-home-skeleton-${idx}`}
+                  className="flex gap-4"
+                >
+                  <div className="h-24 w-44 shrink-0 animate-pulse bg-white/20 md:h-28 md:w-48" />
+                  <div className="w-full">
+                    <div className="h-3 w-20 animate-pulse bg-white/20" />
+                    <div className="mt-2 h-8 w-5/6 animate-pulse bg-white/20" />
+                    <div className="mt-2 h-4 w-full animate-pulse bg-white/20" />
+                    <div className="mt-1 h-4 w-3/4 animate-pulse bg-white/20" />
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        ) : highlight ? (
           <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-12">
             <article className="lg:col-span-7">
               <Link href={`/blog/${highlight.id}`}>
