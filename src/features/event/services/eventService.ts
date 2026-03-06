@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import {
+  EventDepartmentCategory,
   EventDetailResponse,
   EventListResponse,
   EventSortBy,
@@ -52,7 +53,12 @@ export const eventService = {
   getPublicEvents: async (
     page: number,
     limit: number,
-    filters?: { startDate?: string; endDate?: string; sortBy?: EventSortBy },
+    filters?: {
+      startDate?: string;
+      endDate?: string;
+      sortBy?: EventSortBy;
+      department?: EventDepartmentCategory;
+    },
   ): Promise<EventListResponse> => {
     const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
     const safeLimit =
@@ -77,6 +83,7 @@ export const eventService = {
         ? rawStartDate
         : rawEndDate;
     const sortBy: EventSortBy = filters?.sortBy || "latest";
+    const department = filters?.department;
 
     let query = supabase
       .from("events")
@@ -91,6 +98,10 @@ export const eventService = {
 
     if (endDate) {
       query = query.lte("event_date", endDate);
+    }
+
+    if (department) {
+      query = query.eq("category", department);
     }
 
     if (sortBy === "oldest") {

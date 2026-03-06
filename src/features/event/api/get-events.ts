@@ -11,11 +11,13 @@ export async function getEvents({
   startDate,
   endDate,
   sortBy,
+  department,
 }: EventListParams): Promise<EventListResponse> {
   return eventService.getPublicEvents(page, limit, {
     startDate,
     endDate,
     sortBy,
+    department,
   });
 }
 

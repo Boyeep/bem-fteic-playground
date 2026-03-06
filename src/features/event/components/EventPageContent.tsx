@@ -7,9 +7,15 @@ import EventFilters from "@/features/event/components/EventFilters";
 import EventHeader from "@/features/event/components/EventHeader";
 import EventPagination from "@/features/event/components/EventPagination";
 import { useEvents } from "@/features/event/hooks/useEvents";
-import { EventSortBy } from "@/features/event/types";
+import { EventDepartmentCategory, EventSortBy } from "@/features/event/types";
 
-export default function EventPageContent() {
+interface EventPageContentProps {
+  initialDepartment?: EventDepartmentCategory;
+}
+
+export default function EventPageContent({
+  initialDepartment,
+}: EventPageContentProps) {
   const [page, setPage] = useState(1);
   const [dateRange, setDateRange] = useState<{
     startDate?: string;
@@ -22,6 +28,7 @@ export default function EventPageContent() {
     startDate: dateRange.startDate,
     endDate: dateRange.endDate,
     sortBy,
+    department: initialDepartment,
   });
 
   const handleDateRangeChange = useCallback(

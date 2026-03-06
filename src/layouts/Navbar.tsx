@@ -5,18 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { EVENT_NAV_ITEMS } from "@/features/event/department";
 import clsxm from "@/lib/clsxm";
-
-const eventItems = [
-  "EVENT",
-  "FTEIC",
-  "TEKNIK ELEKTRO",
-  "TEKNIK INFORMATIKA",
-  "SISTEM INFORMASI",
-  "TEKNIK KOMPUTER",
-  "TEKNIK BIOMEDIK",
-  "TEKNOLOGI INFORMASI",
-];
 
 const kabinetItems = [
   "STRUKTUR",
@@ -33,23 +23,21 @@ const kabinetItems = [
 
 function DropdownList({
   items,
-  withEventLink = false,
 }: {
-  items: string[];
-  withEventLink?: boolean;
+  items: { label: string; href: string }[];
 }) {
   return (
     <div className="w-[320px] border border-black/20 bg-[#FCD704]">
       {items.map((item) => (
         <Link
-          key={item}
-          href={withEventLink && item === "EVENT" ? "/event" : "#"}
+          key={item.label}
+          href={item.href}
           className={clsxm(
             "flex items-center justify-between border-b border-black/20 px-5 py-3 text-sm text-black",
             "transition-colors hover:bg-[#FCEABF] last:border-b-0",
           )}
         >
-          <span>{item}</span>
+          <span>{item.label}</span>
           <MoveUpRight size={18} />
         </Link>
       ))}
@@ -135,14 +123,14 @@ export default function Navbar() {
                   </button>
                   {mobileEventOpen ? (
                     <div className="border-t border-black/20 bg-[#FCD704]">
-                      {eventItems.map((item) => (
+                      {EVENT_NAV_ITEMS.map((item) => (
                         <Link
-                          key={`mobile-event-${item}`}
-                          href={item === "EVENT" ? "/event" : "#"}
+                          key={`mobile-event-${item.label}`}
+                          href={item.href}
                           className="block border-b border-black/20 bg-[#FCD704] px-4 py-2 text-xs uppercase transition-colors hover:bg-[#FCEABF] active:bg-[#FCEABF] last:border-b-0"
                           onClick={() => setMobileMenuOpen(false)}
                         >
-                          {item}
+                          {item.label}
                         </Link>
                       ))}
                     </div>
@@ -217,7 +205,7 @@ export default function Navbar() {
               </button>
               {openMenu === "event" ? (
                 <div className="absolute left-1/2 top-full -translate-x-1/2 pt-2">
-                  <DropdownList items={eventItems} withEventLink />
+                  <DropdownList items={EVENT_NAV_ITEMS} />
                 </div>
               ) : null}
             </div>
@@ -236,7 +224,12 @@ export default function Navbar() {
               </button>
               {openMenu === "kabinet" ? (
                 <div className="absolute left-1/2 top-full -translate-x-1/2 pt-2">
-                  <DropdownList items={kabinetItems} />
+                  <DropdownList
+                    items={kabinetItems.map((item) => ({
+                      label: item,
+                      href: "#",
+                    }))}
+                  />
                 </div>
               ) : null}
             </div>

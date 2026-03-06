@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { isEventDepartmentCategory } from "@/features/event/department";
 import { eventService } from "@/features/event/services/eventService";
 
 export async function GET(request: NextRequest) {
@@ -10,6 +11,7 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get("startDate") ?? undefined;
     const endDate = searchParams.get("endDate") ?? undefined;
     const sortBy = searchParams.get("sortBy") ?? undefined;
+    const department = searchParams.get("department") ?? undefined;
 
     const response = await eventService.getPublicEvents(page, limit, {
       startDate,
@@ -21,6 +23,9 @@ export async function GET(request: NextRequest) {
         sortBy === "latest"
           ? sortBy
           : undefined,
+      department: isEventDepartmentCategory(department)
+        ? department
+        : undefined,
     });
     return NextResponse.json(response);
   } catch (error) {

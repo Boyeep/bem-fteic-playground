@@ -1,5 +1,13 @@
 export type EventStatus = "ONGOING" | "ENDED";
 export type EventSortBy = "latest" | "oldest" | "title_asc" | "title_desc";
+export type EventDepartmentCategory =
+  | "FTEIC"
+  | "TEKNIK ELEKTRO"
+  | "TEKNIK INFORMATIKA"
+  | "SISTEM INFORMASI"
+  | "TEKNIK KOMPUTER"
+  | "TEKNIK BIOMEDIK"
+  | "TEKNOLOGI INFORMASI";
 
 export interface EventSummary {
   id: string;
@@ -36,6 +44,7 @@ export interface EventListParams {
   startDate?: string;
   endDate?: string;
   sortBy?: EventSortBy;
+  department?: EventDepartmentCategory;
 }
 
 export interface UpsertEventPayload {
