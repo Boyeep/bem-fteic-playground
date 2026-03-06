@@ -9,7 +9,7 @@ import VisiMisiSection from "@/features/homepage/components/VisiMisiSection";
 
 export default function HomePageContent() {
   return (
-    <main className="bg-black">
+    <main className="overflow-x-hidden bg-black">
       <HeroSection />
       <HeroToAboutGradient />
       <AboutSection />

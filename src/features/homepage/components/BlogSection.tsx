@@ -87,7 +87,7 @@ export default function BlogSection() {
                       />
                     </div>
                   </Link>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-xs font-semibold uppercase text-[#FCD704]">
                       {blog.category}
                     </p>
