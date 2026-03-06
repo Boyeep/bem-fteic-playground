@@ -8,8 +8,9 @@ import { galeriService } from "@/features/galeri/services/galeriService";
 export async function getGaleri({
   page,
   limit,
+  sortBy,
 }: GaleriListParams): Promise<GaleriListResponse> {
-  return galeriService.getPublicGaleri(page, limit);
+  return galeriService.getPublicGaleri(page, limit, { sortBy });
 }
 
 export async function getGaleriById(id: string): Promise<GaleriDetailResponse> {

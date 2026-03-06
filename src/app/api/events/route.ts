@@ -9,10 +9,18 @@ export async function GET(request: NextRequest) {
     const limit = Number(searchParams.get("limit") ?? "8");
     const startDate = searchParams.get("startDate") ?? undefined;
     const endDate = searchParams.get("endDate") ?? undefined;
+    const sortBy = searchParams.get("sortBy") ?? undefined;
 
     const response = await eventService.getPublicEvents(page, limit, {
       startDate,
       endDate,
+      sortBy:
+        sortBy === "oldest" ||
+        sortBy === "title_asc" ||
+        sortBy === "title_desc" ||
+        sortBy === "latest"
+          ? sortBy
+          : undefined,
     });
     return NextResponse.json(response);
   } catch (error) {

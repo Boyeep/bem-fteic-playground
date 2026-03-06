@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import {
   EventDetailResponse,
   EventListResponse,
+  EventSortBy,
   EventStatus,
   EventSummary,
   UpsertEventPayload,
@@ -51,7 +52,7 @@ export const eventService = {
   getPublicEvents: async (
     page: number,
     limit: number,
-    filters?: { startDate?: string; endDate?: string },
+    filters?: { startDate?: string; endDate?: string; sortBy?: EventSortBy },
   ): Promise<EventListResponse> => {
     const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
     const safeLimit =
@@ -75,6 +76,7 @@ export const eventService = {
       hasBoth && rawStartDate && rawEndDate && rawStartDate > rawEndDate
         ? rawStartDate
         : rawEndDate;
+    const sortBy: EventSortBy = filters?.sortBy || "latest";
 
     let query = supabase
       .from("events")
@@ -91,9 +93,17 @@ export const eventService = {
       query = query.lte("event_date", endDate);
     }
 
-    const { data, count, error } = await query
-      .order("event_date", { ascending: false })
-      .range(from, to);
+    if (sortBy === "oldest") {
+      query = query.order("event_date", { ascending: true });
+    } else if (sortBy === "title_asc") {
+      query = query.order("title", { ascending: true });
+    } else if (sortBy === "title_desc") {
+      query = query.order("title", { ascending: false });
+    } else {
+      query = query.order("event_date", { ascending: false });
+    }
+
+    const { data, count, error } = await query.range(from, to);
 
     if (error) {
       throw new Error(error.message || "Failed to fetch events");

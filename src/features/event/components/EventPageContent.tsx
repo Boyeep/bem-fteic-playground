@@ -7,6 +7,7 @@ import EventFilters from "@/features/event/components/EventFilters";
 import EventHeader from "@/features/event/components/EventHeader";
 import EventPagination from "@/features/event/components/EventPagination";
 import { useEvents } from "@/features/event/hooks/useEvents";
+import { EventSortBy } from "@/features/event/types";
 
 export default function EventPageContent() {
   const [page, setPage] = useState(1);
@@ -14,11 +15,13 @@ export default function EventPageContent() {
     startDate?: string;
     endDate?: string;
   }>({});
+  const [sortBy, setSortBy] = useState<EventSortBy>("latest");
   const { data, isPending, isError, error } = useEvents({
     page,
     limit: 10,
     startDate: dateRange.startDate,
     endDate: dateRange.endDate,
+    sortBy,
   });
 
   const handleDateRangeChange = useCallback(
@@ -29,11 +32,19 @@ export default function EventPageContent() {
     [],
   );
 
+  const handleSortChange = useCallback((nextSort: EventSortBy) => {
+    setSortBy(nextSort);
+    setPage(1);
+  }, []);
+
   return (
     <main className="min-h-screen bg-[#F3F3F3] px-6 py-16">
       <section className="mx-auto w-full max-w-6xl">
         <EventHeader />
-        <EventFilters onDateRangeChange={handleDateRangeChange} />
+        <EventFilters
+          onDateRangeChange={handleDateRangeChange}
+          onSortChange={handleSortChange}
+        />
         {isPending ? (
           <div className="mt-8 grid grid-cols-1 gap-x-10 gap-y-5 md:grid-cols-2">
             {Array.from({ length: 6 }).map((_, idx) => (

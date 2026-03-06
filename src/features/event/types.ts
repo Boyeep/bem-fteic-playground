@@ -1,4 +1,5 @@
 export type EventStatus = "ONGOING" | "ENDED";
+export type EventSortBy = "latest" | "oldest" | "title_asc" | "title_desc";
 
 export interface EventSummary {
   id: string;
@@ -34,6 +35,7 @@ export interface EventListParams {
   limit: number;
   startDate?: string;
   endDate?: string;
+  sortBy?: EventSortBy;
 }
 
 export interface UpsertEventPayload {

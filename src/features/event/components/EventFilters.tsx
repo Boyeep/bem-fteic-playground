@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { EventSortBy } from "@/features/event/types";
 
 type DateRangePreset =
   | "all"
@@ -10,6 +11,7 @@ type DateRangePreset =
 
 interface EventFiltersProps {
   onDateRangeChange: (range: { startDate?: string; endDate?: string }) => void;
+  onSortChange: (sortBy: EventSortBy) => void;
 }
 
 function toIsoDate(date: Date) {
@@ -49,10 +51,14 @@ function endOfYear(date: Date) {
   return new Date(date.getFullYear(), 11, 31);
 }
 
-export default function EventFilters({ onDateRangeChange }: EventFiltersProps) {
+export default function EventFilters({
+  onDateRangeChange,
+  onSortChange,
+}: EventFiltersProps) {
   const [preset, setPreset] = useState<DateRangePreset>("all");
   const [customStartDate, setCustomStartDate] = useState("");
   const [customEndDate, setCustomEndDate] = useState("");
+  const [sortBy, setSortBy] = useState<EventSortBy>("latest");
 
   useEffect(() => {
     const now = new Date();
@@ -92,31 +98,59 @@ export default function EventFilters({ onDateRangeChange }: EventFiltersProps) {
     });
   }, [preset, customStartDate, customEndDate, onDateRangeChange]);
 
+  useEffect(() => {
+    onSortChange(sortBy);
+  }, [sortBy, onSortChange]);
+
   return (
     <div className="mt-8 flex flex-col gap-6">
-      <div className="flex items-center gap-3">
-        <span className="text-xs font-semibold uppercase text-black/70">
-          FILTER BY
-        </span>
-        <label className="relative inline-flex">
-          <select
-            value={preset}
-            onChange={(event) =>
-              setPreset(event.target.value as DateRangePreset)
-            }
-            className="min-w-44 appearance-none border border-black/15 bg-white px-4 py-2 pr-9 text-sm text-black"
-          >
-            <option value="all">All</option>
-            <option value="this_week">Minggu ini</option>
-            <option value="this_month">Bulan ini</option>
-            <option value="this_year">Tahun ini</option>
-            <option value="custom">Custom range</option>
-          </select>
-          <ChevronDown
-            size={16}
-            className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2"
-          />
-        </label>
+      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-semibold uppercase text-black/70">
+            FILTER BY
+          </span>
+          <label className="relative inline-flex">
+            <select
+              value={preset}
+              onChange={(event) =>
+                setPreset(event.target.value as DateRangePreset)
+              }
+              className="min-w-44 appearance-none border border-black/15 bg-white px-4 py-2 pr-9 text-sm text-black"
+            >
+              <option value="all">All</option>
+              <option value="this_week">Minggu ini</option>
+              <option value="this_month">Bulan ini</option>
+              <option value="this_year">Tahun ini</option>
+              <option value="custom">Custom range</option>
+            </select>
+            <ChevronDown
+              size={16}
+              className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2"
+            />
+          </label>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-semibold uppercase text-black/70">
+            SORT BY
+          </span>
+          <label className="relative inline-flex">
+            <select
+              value={sortBy}
+              onChange={(event) => setSortBy(event.target.value as EventSortBy)}
+              className="min-w-52 appearance-none border border-black/15 bg-white px-4 py-2 pr-9 text-sm text-black"
+            >
+              <option value="latest">Latest</option>
+              <option value="oldest">Oldest</option>
+              <option value="title_asc">Alphabetical (A-Z)</option>
+              <option value="title_desc">Alphabetical (Z-A)</option>
+            </select>
+            <ChevronDown
+              size={16}
+              className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2"
+            />
+          </label>
+        </div>
       </div>
 
       {preset === "custom" ? (
@@ -137,19 +171,6 @@ export default function EventFilters({ onDateRangeChange }: EventFiltersProps) {
           />
         </div>
       ) : null}
-
-      <div className="flex items-center gap-3">
-        <span className="text-xs font-semibold uppercase text-black/70">
-          SORT BY
-        </span>
-        <button
-          type="button"
-          className="flex min-w-36 items-center justify-between border border-black/15 bg-white px-4 py-2 text-sm text-black"
-        >
-          Latest
-          <ChevronDown size={16} />
-        </button>
-      </div>
     </div>
   );
 }

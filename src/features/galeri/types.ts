@@ -1,3 +1,5 @@
+export type GaleriSortBy = "latest" | "oldest" | "title_asc" | "title_desc";
+
 export interface GaleriItem {
   id: string;
   title: string;
@@ -27,6 +29,7 @@ export interface GaleriDetailResponse {
 export interface GaleriListParams {
   page: number;
   limit: number;
+  sortBy?: GaleriSortBy;
 }
 
 export interface UpsertGaleriPayload {

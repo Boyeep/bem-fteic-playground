@@ -3,6 +3,7 @@ import {
   GaleriDetailResponse,
   GaleriItem,
   GaleriListResponse,
+  GaleriSortBy,
   UpsertGaleriPayload,
 } from "@/features/galeri/types";
 
@@ -44,18 +45,32 @@ export const galeriService = {
   getPublicGaleri: async (
     page: number,
     limit: number,
+    filters?: { sortBy?: GaleriSortBy },
   ): Promise<GaleriListResponse> => {
     const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
     const safeLimit =
       Number.isFinite(limit) && limit > 0 ? Math.floor(limit) : 12;
     const from = (safePage - 1) * safeLimit;
     const to = from + safeLimit - 1;
+    const sortBy: GaleriSortBy = filters?.sortBy || "latest";
 
-    const { data, count, error } = await supabase
+    let query = supabase
       .from("galeri")
-      .select("id,title,link,image_url,taken_at,created_at", { count: "exact" })
-      .order("taken_at", { ascending: false })
-      .range(from, to);
+      .select("id,title,link,image_url,taken_at,created_at", {
+        count: "exact",
+      });
+
+    if (sortBy === "oldest") {
+      query = query.order("taken_at", { ascending: true });
+    } else if (sortBy === "title_asc") {
+      query = query.order("title", { ascending: true });
+    } else if (sortBy === "title_desc") {
+      query = query.order("title", { ascending: false });
+    } else {
+      query = query.order("taken_at", { ascending: false });
+    }
+
+    const { data, count, error } = await query.range(from, to);
 
     if (error) {
       throw new Error(error.message || "Failed to fetch galeri data");

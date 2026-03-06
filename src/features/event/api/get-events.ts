@@ -10,8 +10,13 @@ export async function getEvents({
   limit,
   startDate,
   endDate,
+  sortBy,
 }: EventListParams): Promise<EventListResponse> {
-  return eventService.getPublicEvents(page, limit, { startDate, endDate });
+  return eventService.getPublicEvents(page, limit, {
+    startDate,
+    endDate,
+    sortBy,
+  });
 }
 
 export async function getEventById(id: string): Promise<EventDetailResponse> {

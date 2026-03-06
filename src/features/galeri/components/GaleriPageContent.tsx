@@ -1,20 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import GaleriFilters from "@/features/galeri/components/GaleriFilters";
 import GaleriGrid from "@/features/galeri/components/GaleriGrid";
 import GaleriPagination from "@/features/galeri/components/GaleriPagination";
 import { useGaleri } from "@/features/galeri/hooks/useGaleri";
+import { GaleriSortBy } from "@/features/galeri/types";
 
 export default function GaleriPageContent() {
   const [page, setPage] = useState(1);
-  const { data, isPending, isError, error } = useGaleri({ page, limit: 12 });
+  const [sortBy, setSortBy] = useState<GaleriSortBy>("latest");
+  const { data, isPending, isError, error } = useGaleri({
+    page,
+    limit: 12,
+    sortBy,
+  });
+
+  const handleSortChange = useCallback((nextSort: GaleriSortBy) => {
+    setSortBy(nextSort);
+    setPage(1);
+  }, []);
 
   return (
     <main className="min-h-screen bg-[#F3F3F3] px-6 py-16">
       <section className="mx-auto w-full max-w-6xl">
-        <GaleriFilters />
+        <GaleriFilters onSortChange={handleSortChange} />
         {isPending ? (
           <div className="mt-8 grid grid-cols-1 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
             {Array.from({ length: 8 }).map((_, idx) => (
