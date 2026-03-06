@@ -1,4 +1,5 @@
 export type GaleriSortBy = "latest" | "oldest" | "title_asc" | "title_desc";
+export type GaleriOrientation = "all" | "portrait" | "landscape" | "square";
 export type GaleriDepartment =
   | "all"
   | "teknik_elektro"

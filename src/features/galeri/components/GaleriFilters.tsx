@@ -1,18 +1,25 @@
 import { useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { GaleriDepartment, GaleriSortBy } from "@/features/galeri/types";
+import {
+  GaleriDepartment,
+  GaleriOrientation,
+  GaleriSortBy,
+} from "@/features/galeri/types";
 
 interface GaleriFiltersProps {
   onSortChange: (sortBy: GaleriSortBy) => void;
   onDepartmentChange: (department: GaleriDepartment) => void;
+  onOrientationChange: (orientation: GaleriOrientation) => void;
 }
 
 export default function GaleriFilters({
   onSortChange,
   onDepartmentChange,
+  onOrientationChange,
 }: GaleriFiltersProps) {
   const [sortBy, setSortBy] = useState<GaleriSortBy>("latest");
   const [department, setDepartment] = useState<GaleriDepartment>("all");
+  const [orientation, setOrientation] = useState<GaleriOrientation>("all");
 
   useEffect(() => {
     onSortChange(sortBy);
@@ -21,6 +28,10 @@ export default function GaleriFilters({
   useEffect(() => {
     onDepartmentChange(department);
   }, [department, onDepartmentChange]);
+
+  useEffect(() => {
+    onOrientationChange(orientation);
+  }, [orientation, onOrientationChange]);
 
   return (
     <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
@@ -50,13 +61,24 @@ export default function GaleriFilters({
               className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2"
             />
           </label>
-          <button
-            type="button"
-            className="flex w-full items-center justify-between border border-black/15 bg-white px-4 py-2 text-sm text-black sm:min-w-36 md:w-auto"
-          >
-            Orientation
-            <ChevronDown size={16} />
-          </button>
+          <label className="relative inline-flex">
+            <select
+              value={orientation}
+              onChange={(event) =>
+                setOrientation(event.target.value as GaleriOrientation)
+              }
+              className="w-full appearance-none border border-black/15 bg-white px-4 py-2 pr-9 text-sm text-black sm:min-w-36 md:w-auto"
+            >
+              <option value="all">All</option>
+              <option value="portrait">Portrait</option>
+              <option value="landscape">Landscape</option>
+              <option value="square">Square</option>
+            </select>
+            <ChevronDown
+              size={16}
+              className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2"
+            />
+          </label>
         </div>
       </div>
 
