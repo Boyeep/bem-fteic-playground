@@ -48,7 +48,7 @@ export default function GaleriGrid({ items, orientation }: GaleriGridProps) {
   }, [items, orientation, orientationById]);
 
   return (
-    <div className="mt-8 grid grid-cols-1 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
+    <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
       {visibleItems.map((item) => (
         <article key={item.id}>
           <div className="relative h-56 w-full overflow-hidden bg-white">
