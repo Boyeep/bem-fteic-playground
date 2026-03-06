@@ -154,19 +154,19 @@ export default function EventFilters({
       </div>
 
       {preset === "custom" ? (
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex flex-row items-center gap-2 sm:gap-3">
           <input
             type="date"
             value={customStartDate}
             onChange={(event) => setCustomStartDate(event.target.value)}
-            className="border border-black/15 bg-white px-4 py-2 text-sm text-black"
+            className="w-[150px] border border-black/15 bg-white px-4 py-2 text-sm text-black sm:w-[220px]"
             aria-label="Start date"
           />
           <input
             type="date"
             value={customEndDate}
             onChange={(event) => setCustomEndDate(event.target.value)}
-            className="border border-black/15 bg-white px-4 py-2 text-sm text-black"
+            className="w-[150px] border border-black/15 bg-white px-4 py-2 text-sm text-black sm:w-[220px]"
             aria-label="End date"
           />
         </div>
