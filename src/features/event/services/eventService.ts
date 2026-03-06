@@ -51,19 +51,47 @@ export const eventService = {
   getPublicEvents: async (
     page: number,
     limit: number,
+    filters?: { startDate?: string; endDate?: string },
   ): Promise<EventListResponse> => {
     const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
     const safeLimit =
       Number.isFinite(limit) && limit > 0 ? Math.floor(limit) : 8;
     const from = (safePage - 1) * safeLimit;
     const to = from + safeLimit - 1;
+    const isValidDate = (value?: string) =>
+      Boolean(value && /^\d{4}-\d{2}-\d{2}$/.test(value));
+    const rawStartDate = isValidDate(filters?.startDate)
+      ? filters?.startDate
+      : undefined;
+    const rawEndDate = isValidDate(filters?.endDate)
+      ? filters?.endDate
+      : undefined;
+    const hasBoth = Boolean(rawStartDate && rawEndDate);
+    const startDate =
+      hasBoth && rawStartDate && rawEndDate && rawStartDate > rawEndDate
+        ? rawEndDate
+        : rawStartDate;
+    const endDate =
+      hasBoth && rawStartDate && rawEndDate && rawStartDate > rawEndDate
+        ? rawStartDate
+        : rawEndDate;
 
-    const { data, count, error } = await supabase
+    let query = supabase
       .from("events")
       .select(
         "id,title,description,author,category,cover_image,event_date,status,created_at",
         { count: "exact" },
-      )
+      );
+
+    if (startDate) {
+      query = query.gte("event_date", startDate);
+    }
+
+    if (endDate) {
+      query = query.lte("event_date", endDate);
+    }
+
+    const { data, count, error } = await query
       .order("event_date", { ascending: false })
       .range(from, to);
 

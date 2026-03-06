@@ -32,6 +32,8 @@ export interface EventDetailResponse {
 export interface EventListParams {
   page: number;
   limit: number;
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface UpsertEventPayload {

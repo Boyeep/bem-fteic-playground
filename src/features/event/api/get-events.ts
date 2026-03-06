@@ -8,8 +8,10 @@ import { eventService } from "@/features/event/services/eventService";
 export async function getEvents({
   page,
   limit,
+  startDate,
+  endDate,
 }: EventListParams): Promise<EventListResponse> {
-  return eventService.getPublicEvents(page, limit);
+  return eventService.getPublicEvents(page, limit, { startDate, endDate });
 }
 
 export async function getEventById(id: string): Promise<EventDetailResponse> {

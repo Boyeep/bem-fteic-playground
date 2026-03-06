@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import EventCardGrid from "@/features/event/components/EventCardGrid";
 import EventFilters from "@/features/event/components/EventFilters";
@@ -10,13 +10,30 @@ import { useEvents } from "@/features/event/hooks/useEvents";
 
 export default function EventPageContent() {
   const [page, setPage] = useState(1);
-  const { data, isPending, isError, error } = useEvents({ page, limit: 10 });
+  const [dateRange, setDateRange] = useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
+  const { data, isPending, isError, error } = useEvents({
+    page,
+    limit: 10,
+    startDate: dateRange.startDate,
+    endDate: dateRange.endDate,
+  });
+
+  const handleDateRangeChange = useCallback(
+    (nextRange: { startDate?: string; endDate?: string }) => {
+      setDateRange(nextRange);
+      setPage(1);
+    },
+    [],
+  );
 
   return (
     <main className="min-h-screen bg-[#F3F3F3] px-6 py-16">
       <section className="mx-auto w-full max-w-6xl">
         <EventHeader />
-        <EventFilters />
+        <EventFilters onDateRangeChange={handleDateRangeChange} />
         {isPending ? (
           <div className="mt-8 grid grid-cols-1 gap-x-10 gap-y-5 md:grid-cols-2">
             {Array.from({ length: 6 }).map((_, idx) => (
