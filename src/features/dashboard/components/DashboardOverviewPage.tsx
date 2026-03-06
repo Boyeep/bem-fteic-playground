@@ -171,7 +171,7 @@ export default function DashboardOverviewPage() {
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <StatCard
                     label="Blogs Published"
-                    value={String(data?.items.length || 0)}
+                    value={String(data?.pagination.totalItems || 0)}
                   />
                   <StatCard
                     label="Events Hosted"
