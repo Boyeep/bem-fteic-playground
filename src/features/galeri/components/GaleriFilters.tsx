@@ -35,11 +35,11 @@ export default function GaleriFilters({
 
   return (
     <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-      <div className="flex flex-col gap-3 sm:gap-2 md:flex-row md:items-center md:gap-3">
+      <div className="flex items-start justify-between gap-3 sm:items-center md:gap-3">
         <span className="text-xs font-semibold uppercase text-black/70">
           FILTER BY
         </span>
-        <div className="flex flex-col gap-3 sm:flex-row sm:gap-2 md:w-auto md:gap-3">
+        <div className="flex flex-col items-end gap-3 sm:flex-row sm:gap-2 md:w-auto md:gap-3">
           <label className="relative inline-flex">
             <select
               value={department}
@@ -58,7 +58,7 @@ export default function GaleriFilters({
             </select>
             <ChevronDown
               size={16}
-              className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2"
+              className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-black"
             />
           </label>
           <label className="relative inline-flex">
@@ -76,13 +76,13 @@ export default function GaleriFilters({
             </select>
             <ChevronDown
               size={16}
-              className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2"
+              className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-black"
             />
           </label>
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 sm:gap-2 md:flex-row md:items-center md:gap-3">
+      <div className="flex items-center justify-between gap-3 md:gap-3">
         <span className="text-xs font-semibold uppercase text-black/70">
           SORT BY
         </span>
@@ -99,7 +99,7 @@ export default function GaleriFilters({
           </select>
           <ChevronDown
             size={16}
-            className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2"
+            className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-black"
           />
         </label>
       </div>
