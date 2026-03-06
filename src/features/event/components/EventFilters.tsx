@@ -133,7 +133,7 @@ export default function EventFilters({
               onChange={(event) =>
                 setPreset(event.target.value as DateRangePreset)
               }
-              className="min-w-44 appearance-none border border-black/15 bg-white px-4 py-2 pr-9 text-sm text-black"
+              className="w-[180px] appearance-none border border-black/15 bg-white px-4 py-2 pr-9 text-sm text-black sm:w-[220px]"
             >
               <option value="all">Date Range</option>
               <option value="this_week">Minggu ini</option>
@@ -153,7 +153,7 @@ export default function EventFilters({
             <select
               value={sortBy}
               onChange={(event) => setSortBy(event.target.value as EventSortBy)}
-              className="min-w-52 appearance-none border border-black/15 bg-white px-4 py-2 pr-9 text-sm text-black"
+              className="w-[180px] appearance-none border border-black/15 bg-white px-4 py-2 pr-9 text-sm text-black sm:w-[220px]"
             >
               <option value="latest">Latest</option>
               <option value="oldest">Oldest</option>

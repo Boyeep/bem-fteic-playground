@@ -57,14 +57,14 @@ export default function GaleriFilters({
         <span className="text-xs font-semibold uppercase text-black/70">
           FILTER BY
         </span>
-        <div className="flex w-full flex-col gap-3 sm:flex-row sm:gap-2 md:w-auto md:gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:gap-2 md:w-auto md:gap-3">
           <label className="relative inline-flex">
             <select
               value={department}
               onChange={(event) =>
                 setDepartment(event.target.value as GaleriDepartment)
               }
-              className="w-full appearance-none border border-black/15 bg-white px-4 py-2 pr-9 text-sm text-black sm:min-w-44 md:w-auto"
+              className="w-[180px] appearance-none border border-black/15 bg-white px-4 py-2 pr-9 text-sm text-black sm:w-[220px]"
             >
               <option value="all">Departemen</option>
               <option value="teknik_elektro">Teknik Elektro</option>
@@ -82,7 +82,7 @@ export default function GaleriFilters({
               onChange={(event) =>
                 setOrientation(event.target.value as GaleriOrientation)
               }
-              className="w-full appearance-none border border-black/15 bg-white px-4 py-2 pr-9 text-sm text-black sm:min-w-36 md:w-auto"
+              className="w-[180px] appearance-none border border-black/15 bg-white px-4 py-2 pr-9 text-sm text-black sm:w-[220px]"
             >
               <option value="all">Orientation</option>
               <option value="portrait">Portrait</option>
@@ -98,11 +98,11 @@ export default function GaleriFilters({
         <span className="text-xs font-semibold uppercase text-black/70">
           SORT BY
         </span>
-        <label className="relative inline-flex w-full sm:max-w-[280px] md:w-auto">
+        <label className="relative inline-flex">
           <select
             value={sortBy}
             onChange={(event) => setSortBy(event.target.value as GaleriSortBy)}
-            className="w-full appearance-none border border-black/15 bg-white px-4 py-2 pr-9 text-sm text-black sm:min-w-[260px] md:w-auto"
+            className="w-[180px] appearance-none border border-black/15 bg-white px-4 py-2 pr-9 text-sm text-black sm:w-[220px]"
           >
             <option value="latest">Latest</option>
             <option value="oldest">Oldest</option>
