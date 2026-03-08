@@ -28,7 +28,7 @@ export default function BlogSection() {
         {isPending ? (
           <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-12">
             <article className="lg:col-span-7">
-              <div className="h-72 w-full animate-pulse bg-white/20 md:h-80" />
+              <div className="h-80 w-full animate-pulse bg-white/20 md:h-96" />
               <div className="mt-4 h-4 w-24 animate-pulse bg-white/20" />
               <div className="mt-3 h-10 w-4/5 animate-pulse bg-white/20" />
               <div className="mt-3 h-6 w-full animate-pulse bg-white/20" />
@@ -56,7 +56,7 @@ export default function BlogSection() {
           <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-12">
             <article className="lg:col-span-7">
               <Link href={`/blog/${highlight.id}`}>
-                <div className="relative h-72 w-full overflow-hidden md:h-80">
+                <div className="relative h-80 w-full overflow-hidden md:h-96">
                   <img
                     src={highlight.coverImage}
                     alt={highlight.title}
@@ -67,7 +67,7 @@ export default function BlogSection() {
               <p className="mt-4 text-sm font-semibold uppercase text-[#FCD704]">
                 {highlight.category}
               </p>
-              <h4 className="mt-2 text-xl font-bold leading-tight md:text-2xl">
+              <h4 className="mt-2 text-2xl font-bold leading-tight md:text-3xl">
                 {highlight.title}
               </h4>
               <p className="mt-4 text-lg leading-relaxed text-white/85 md:text-xl">
