@@ -67,10 +67,10 @@ export default function BlogSection() {
               <p className="mt-4 text-sm font-semibold uppercase text-[#FCD704]">
                 {highlight.category}
               </p>
-              <h4 className="mt-2 text-3xl font-bold leading-tight md:text-4xl">
+              <h4 className="mt-2 text-xl font-bold leading-tight md:text-2xl">
                 {highlight.title}
               </h4>
-              <p className="mt-4 text-xl leading-relaxed text-white/85 md:text-2xl">
+              <p className="mt-4 text-lg leading-relaxed text-white/85 md:text-xl">
                 {highlight.excerpt}
               </p>
             </article>
@@ -91,7 +91,7 @@ export default function BlogSection() {
                     <p className="text-xs font-semibold uppercase text-[#FCD704]">
                       {blog.category}
                     </p>
-                    <h5 className="mt-1 line-clamp-2 text-3xl font-bold leading-tight md:text-4xl">
+                    <h5 className="mt-1 line-clamp-2 text-lg font-bold leading-tight md:text-xl">
                       {blog.title}
                     </h5>
                     <p className="mt-1 line-clamp-2 text-sm text-white/90 md:text-base">

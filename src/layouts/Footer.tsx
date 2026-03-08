@@ -60,7 +60,9 @@ export default function Footer() {
               </div>
 
               <div>
-                <h3 className="mb-3 text-2xl font-semibold uppercase">Event</h3>
+                <h3 className="mb-3 text-2xl font-semibold uppercase">
+                  Departemen
+                </h3>
                 <ul className="space-y-2 text-white/70">
                   {event.map((item) => (
                     <li key={item.label}>

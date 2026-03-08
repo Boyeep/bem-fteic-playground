@@ -20,7 +20,7 @@ export default function EventCardGrid({ items }: EventCardGridProps) {
             <p className="text-xs font-medium text-[#1D4ED8]">
               {new Date(item.eventDate).toLocaleDateString("en-US")}
             </p>
-            <h2 className="mt-2 text-4xl font-bold leading-tight text-black">
+            <h2 className="mt-2 text-xl font-bold leading-tight text-black md:text-2xl">
               {item.title}
             </h2>
             <p className="mt-2 text-lg leading-relaxed text-black/90">
