@@ -19,6 +19,12 @@ type BlogRow = {
   content: string;
   status: BlogStatus;
   created_at: string;
+  created_by?: string | null;
+};
+
+type ProfileRow = {
+  username: string;
+  avatar_url?: string | null;
 };
 
 const BLOG_COVER_BUCKET =
@@ -52,6 +58,7 @@ function mapRowToSummary(row: BlogRow): BlogSummary {
     publishedAt: row.published_at,
     readingTimeMinutes: estimateReadingTimeMinutes(row.content),
     status: row.status,
+    createdBy: row.created_by ?? null,
   };
 }
 
@@ -68,6 +75,20 @@ function buildExcerpt(content: string) {
   return `${compact.slice(0, 157)}...`;
 }
 
+async function resolveAuthorProfile(createdBy?: string | null) {
+  if (!createdBy) return null;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("username,avatar_url")
+    .eq("id", createdBy)
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  return data as ProfileRow;
+}
+
 export const blogService = {
   getPublicBlogs: async (
     page: number,
@@ -82,7 +103,7 @@ export const blogService = {
     const { data, count, error } = await supabase
       .from("blogs")
       .select(
-        "id,title,excerpt,author,category,cover_image,published_at,content,status,created_at",
+        "id,title,excerpt,author,category,cover_image,published_at,content,status,created_at,created_by",
         { count: "exact" },
       )
       .eq("status", "PUBLISHED")
@@ -115,7 +136,7 @@ export const blogService = {
     const { data, error } = await supabase
       .from("blogs")
       .select(
-        "id,title,excerpt,author,category,cover_image,published_at,content,status,created_at",
+        "id,title,excerpt,author,category,cover_image,published_at,content,status,created_at,created_by",
       )
       .eq("id", normalizedId)
       .eq("status", "PUBLISHED")
@@ -126,7 +147,16 @@ export const blogService = {
       throw new Error(error?.message || "Blog post not found.");
     }
 
-    return { item: mapRowToBlog(data as BlogRow) };
+    const mapped = mapRowToBlog(data as BlogRow);
+    const profile = await resolveAuthorProfile(mapped.createdBy);
+
+    return {
+      item: {
+        ...mapped,
+        author: profile?.username || mapped.author,
+        authorAvatarUrl: profile?.avatar_url || null,
+      },
+    };
   },
 
   getDashboardBlogs: async (
@@ -142,7 +172,7 @@ export const blogService = {
     const { data, count, error } = await supabase
       .from("blogs")
       .select(
-        "id,title,excerpt,author,category,cover_image,published_at,content,status,created_at",
+        "id,title,excerpt,author,category,cover_image,published_at,content,status,created_at,created_by",
         { count: "exact" },
       )
       .order("created_at", { ascending: false })
@@ -174,7 +204,7 @@ export const blogService = {
     const { data, error } = await supabase
       .from("blogs")
       .select(
-        "id,title,excerpt,author,category,cover_image,published_at,content,status,created_at",
+        "id,title,excerpt,author,category,cover_image,published_at,content,status,created_at,created_by",
       )
       .eq("id", normalizedId)
       .limit(1)
@@ -184,7 +214,16 @@ export const blogService = {
       throw new Error(error?.message || "Blog post not found.");
     }
 
-    return { item: mapRowToBlog(data as BlogRow) };
+    const mapped = mapRowToBlog(data as BlogRow);
+    const profile = await resolveAuthorProfile(mapped.createdBy);
+
+    return {
+      item: {
+        ...mapped,
+        author: profile?.username || mapped.author,
+        authorAvatarUrl: profile?.avatar_url || null,
+      },
+    };
   },
 
   uploadCover: async (userId: string, file: File): Promise<string> => {
@@ -236,7 +275,7 @@ export const blogService = {
         created_by: createdBy,
       })
       .select(
-        "id,title,excerpt,author,category,cover_image,published_at,content,status,created_at",
+        "id,title,excerpt,author,category,cover_image,published_at,content,status,created_at,created_by",
       )
       .single();
 

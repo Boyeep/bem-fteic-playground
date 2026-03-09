@@ -40,9 +40,20 @@ export default function BlogDetail({ blog }: BlogDetailProps) {
       <h1 className="mt-3 max-w-5xl text-4xl font-bold leading-tight text-black md:text-6xl">
         {blog.title}
       </h1>
-      <p className="mt-5 text-xl text-black/60 md:text-2xl">
-        ditulis oleh: {blog.author}
-      </p>
+      <div className="mt-5 flex items-center gap-3">
+        {blog.authorAvatarUrl ? (
+          <img
+            src={blog.authorAvatarUrl}
+            alt={`${blog.author} avatar`}
+            className="h-10 w-10 rounded-full object-cover md:h-12 md:w-12"
+          />
+        ) : (
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-xs font-semibold uppercase text-slate-600 md:h-12 md:w-12">
+            {blog.author.slice(0, 1)}
+          </div>
+        )}
+        <p className="text-xl text-black/60 md:text-2xl">{blog.author}</p>
+      </div>
       <div className="mt-5 space-y-5 text-lg leading-relaxed text-black md:text-2xl">
         {paragraphs.map((paragraph, index) => (
           <p key={`${blog.id}-paragraph-${index}`}>{paragraph}</p>

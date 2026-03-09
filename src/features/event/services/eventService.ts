@@ -19,6 +19,12 @@ type EventRow = {
   event_date: string;
   status: EventStatus;
   created_at: string;
+  created_by?: string | null;
+};
+
+type ProfileRow = {
+  username: string;
+  avatar_url?: string | null;
 };
 
 const EVENT_COVER_BUCKET =
@@ -46,7 +52,22 @@ function mapRowToSummary(row: EventRow): EventSummary {
     coverImage: row.cover_image,
     eventDate: row.event_date,
     status: row.status,
+    createdBy: row.created_by ?? null,
   };
+}
+
+async function resolveAuthorProfile(createdBy?: string | null) {
+  if (!createdBy) return null;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("username,avatar_url")
+    .eq("id", createdBy)
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  return data as ProfileRow;
 }
 
 export const eventService = {
@@ -88,7 +109,7 @@ export const eventService = {
     let query = supabase
       .from("events")
       .select(
-        "id,title,description,author,category,cover_image,event_date,status,created_at",
+        "id,title,description,author,category,cover_image,event_date,status,created_at,created_by",
         { count: "exact" },
       );
 
@@ -149,7 +170,7 @@ export const eventService = {
     const { data, error } = await supabase
       .from("events")
       .select(
-        "id,title,description,author,category,cover_image,event_date,status,created_at",
+        "id,title,description,author,category,cover_image,event_date,status,created_at,created_by",
       )
       .eq("id", normalizedId)
       .limit(1)
@@ -159,7 +180,16 @@ export const eventService = {
       throw new Error(error?.message || "Event not found.");
     }
 
-    return { item: mapRowToSummary(data as EventRow) };
+    const mapped = mapRowToSummary(data as EventRow);
+    const profile = await resolveAuthorProfile(mapped.createdBy);
+
+    return {
+      item: {
+        ...mapped,
+        author: profile?.username || mapped.author,
+        authorAvatarUrl: profile?.avatar_url || null,
+      },
+    };
   },
 
   uploadCover: async (userId: string, file: File): Promise<string> => {
@@ -208,7 +238,7 @@ export const eventService = {
         created_by: createdBy,
       })
       .select(
-        "id,title,description,author,category,cover_image,event_date,status,created_at",
+        "id,title,description,author,category,cover_image,event_date,status,created_at,created_by",
       )
       .single();
 

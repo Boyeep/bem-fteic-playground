@@ -14,10 +14,12 @@ export interface EventSummary {
   title: string;
   description: string;
   author: string;
+  authorAvatarUrl?: string | null;
   category: string;
   coverImage: string;
   eventDate: string;
   status: EventStatus;
+  createdBy?: string | null;
 }
 
 export interface EventPagination {

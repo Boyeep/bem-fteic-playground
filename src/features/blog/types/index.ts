@@ -5,11 +5,13 @@ export interface BlogSummary {
   title: string;
   excerpt: string;
   author: string;
+  authorAvatarUrl?: string | null;
   category: string;
   coverImage: string;
   publishedAt: string;
   readingTimeMinutes: number;
   status: BlogStatus;
+  createdBy?: string | null;
 }
 
 export interface Blog extends BlogSummary {

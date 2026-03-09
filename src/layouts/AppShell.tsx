@@ -19,16 +19,12 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const isAuthRoute = AUTH_ROUTES.has(pathname);
   const isReadBlogPage = pathname.startsWith("/blog/");
   const isReadEventPage = pathname.startsWith("/event/read/");
-  const isHomepage = pathname === "/";
-  const isEventPage = pathname.startsWith("/event");
-  const isGaleriPage = pathname.startsWith("/galeri");
   const isDashboardPage = pathname.startsWith("/dashboard");
 
-  const hideNavbar = isAuthRoute || isDashboardPage;
+  const hideNavbar =
+    isAuthRoute || isReadBlogPage || isReadEventPage || isDashboardPage;
   const hideFooter =
     isAuthRoute || isReadBlogPage || isReadEventPage || isDashboardPage;
-  const needsNavbarSpacer = !hideNavbar && !isHomepage;
-  const spacerBackground = isEventPage || isGaleriPage ? "#F3F3F3" : "#FFFFFF";
 
   useEffect(() => {
     void visitorService.trackVisit(pathname);
@@ -37,12 +33,6 @@ export default function AppShell({ children }: { children: ReactNode }) {
   return (
     <>
       {!hideNavbar ? <Navbar /> : null}
-      {needsNavbarSpacer ? (
-        <div
-          className="h-[76px]"
-          style={{ backgroundColor: spacerBackground }}
-        />
-      ) : null}
       {children}
       {!hideFooter ? <Footer /> : null}
     </>
