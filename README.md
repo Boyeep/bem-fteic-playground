@@ -1,35 +1,31 @@
 # BEM FTEIC Front-End
 
-Website resmi BEM FTEIC dengan public pages + admin dashboard, terintegrasi Supabase untuk auth, blog, event, dan galeri.
+Website resmi BEM FTEIC berbasis Next.js (App Router) dengan public pages + admin dashboard, terintegrasi Supabase untuk autentikasi, blog, event, galeri, dan statistik visitor.
 
-## Features
+## Fitur Utama
 
-### Public website
-- Homepage sections: hero, about, birokrasi, event, blog, location
-- Blog listing and blog detail (`/blog`, `/blog/[id]`)
-- Event listing (`/event`)
-- Galeri listing (`/galeri`)
+### Public pages
+- Homepage: hero, about, birokrasi, event, blog, location
+- Blog list + detail (`/blog`, `/blog/[id]`)
+- Event list + filter department + detail (`/event`, `/event/[department]`, `/event/read/[id]`)
+- Galeri (`/galeri`)
+- Kabinet (`/kabinet/[slug]`, `/kabinet/struktur`)
 
 ### Authentication
-- Login, signup, email confirmation flow
-- User profile state (persisted) with name and avatar update
-- Supabase Auth integration + profile sync
+- Login, signup, check inbox, confirm email
+- Sinkronisasi profil user (nama + avatar) dengan Supabase Auth
 
 ### Admin dashboard
-- Overview page with:
-  - recent blogs
-  - recent events
-  - recent galeri photos
-  - live stats (including events hosted count)
-- Blog CRUD dashboard:
+- Overview statistik (blog, event, galeri, visitors)
+- CRUD Blog:
   - `/dashboard/blog/overview`
   - `/dashboard/blog/create`
   - `/dashboard/blog/edit?id=<id>`
-- Event CRUD dashboard:
+- CRUD Event:
   - `/dashboard/event/overview`
   - `/dashboard/event/create`
   - `/dashboard/event/edit?id=<id>`
-- Galeri CRUD dashboard:
+- CRUD Galeri:
   - `/dashboard/galeri/overview`
   - `/dashboard/galeri/create`
   - `/dashboard/galeri/edit?id=<id>`
@@ -37,59 +33,92 @@ Website resmi BEM FTEIC dengan public pages + admin dashboard, terintegrasi Supa
 ## Tech Stack
 - Next.js 14 (App Router)
 - React + TypeScript
-- Zustand (auth store)
-- TanStack Query
 - Tailwind CSS
+- TanStack Query
+- Zustand
 - Supabase (Auth, Postgres, Storage)
+- Biome (lint/format)
 
-## Project Structure
-- `src/app` App routes
-- `src/features/auth` Auth flows, profile service/store
-- `src/features/blog` Blog public + dashboard logic
-- `src/features/event` Event public + dashboard logic
-- `src/features/galeri` Galeri public + dashboard logic
-- `src/features/dashboard` Dashboard UI pages/forms
-- `src/layouts` Global and dashboard navigation/layout
+## Struktur Project
+- `src/app` - routes (public, auth, dashboard, API)
+- `src/features/auth` - auth flow, profile service/store
+- `src/features/blog` - logic blog (public + dashboard)
+- `src/features/event` - logic event (public + dashboard)
+- `src/features/galeri` - logic galeri (public + dashboard)
+- `src/features/dashboard` - komponen/halaman dashboard
+- `src/layouts` - global + dashboard layout/navigation
 
 ## Local Development
 
+### Prasyarat
+- Node.js 18+ (disarankan 20+)
+- pnpm
+
+### Jalankan lokal
 1. Install dependencies
 ```bash
 pnpm install
 ```
 
-2. Create env file
-- Copy `.env.example` to `.env.local`
-- Fill with your Supabase values
+2. Buat environment file
+```bash
+cp .env.example .env.local
+```
+Atau di PowerShell:
+```powershell
+Copy-Item .env.example .env.local
+```
+Lalu isi nilai Supabase sesuai project kamu.
 
-3. Run app
+3. Start dev server
 ```bash
 pnpm dev
 ```
 
+Aplikasi akan berjalan di `http://localhost:3000`.
+
 ## Environment Variables
 
-Required (see `.env.example`):
+Lihat acuan lengkap di `.env.example`.
+
+### Wajib
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `NEXT_PUBLIC_SITE_URL`
 
-Optional bucket overrides:
+### Opsional
+- `NEXT_PUBLIC_RUN_MODE` (`development`/`production`)
+- `NEXT_PUBLIC_API_URL_DEV`
+- `NEXT_PUBLIC_API_URL_PROD`
 - `NEXT_PUBLIC_SUPABASE_AVATAR_BUCKET`
 - `NEXT_PUBLIC_SUPABASE_BLOG_COVER_BUCKET`
 - `NEXT_PUBLIC_SUPABASE_EVENT_COVER_BUCKET`
 - `NEXT_PUBLIC_SUPABASE_GALERI_BUCKET`
 
+## Scripts
+- `pnpm dev` - jalankan development server
+- `pnpm build` - build production
+- `pnpm start` - jalankan hasil build
+- `pnpm postbuild` - generate sitemap
+- `pnpm lint` - lint check (Biome)
+- `pnpm lint:write` - auto-fix lint issues
+- `pnpm format` - cek formatting
+- `pnpm format:write` - auto-format
+- `pnpm check` - lint + format check (Biome)
+- `pnpm check:write` - auto-fix check issues
+- `pnpm typecheck` - TypeScript type check
+- `pnpm validate` - check + typecheck
+
 ## Supabase Setup
 
 ### 1. Auth configuration
 - Enable Email provider
-- Set site URL and redirect URL:
+- Set site URL dan redirect URL:
   - `http://localhost:3000/confirm-email` (local)
-  - production URL equivalent
+  - production URL setara
 
 ### 1.1 Supabase confirm email template
-Copy this into `Authentication > Email Templates > Confirm signup`:
+Copy ini ke `Authentication > Email Templates > Confirm signup`:
 
 ```html
 <!doctype html>
@@ -305,15 +334,15 @@ for update to authenticated using (auth.uid() = created_by) with check (auth.uid
 ```
 
 ### 6. Storage buckets
-Create these public buckets:
+Buat bucket public berikut:
 - `avatars`
 - `blog-covers`
 - `event-covers`
 - `galeri-images`
 
-For each bucket, use policies that allow:
+Untuk tiap bucket, gunakan policy:
 - public `select`
-- authenticated `insert/update` only for their own folder:
+- authenticated `insert/update` hanya di folder miliknya:
   - `(storage.foldername(name))[1] = auth.uid()::text`
 
 ### 7. Visitor analytics table (dashboard Visitors card)
@@ -347,16 +376,7 @@ to public
 using (true);
 ```
 
-## Deployment
-
-For Vercel:
-1. Set all required env vars in Project Settings
-2. Add production URL to Supabase Auth redirect URLs
+## Deployment (Vercel)
+1. Set semua env vars yang dibutuhkan di Project Settings
+2. Tambahkan production URL ke Supabase Auth Redirect URLs
 3. Redeploy
-
-## Scripts
-- `pnpm dev` run local server
-- `pnpm build` production build
-- `pnpm start` run production build
-- `pnpm lint` lint check
-- `pnpm typecheck` TypeScript check
