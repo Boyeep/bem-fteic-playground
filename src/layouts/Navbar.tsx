@@ -9,16 +9,25 @@ import { EVENT_NAV_ITEMS } from "@/features/event/department";
 import clsxm from "@/lib/clsxm";
 
 const kabinetItems = [
-  "STRUKTUR",
-  "BPH",
-  "ORGANIZATIONAL AFFAIRS",
-  "DEPARTMENT SECRETARY",
-  "INTERNAL AFFAIRS",
-  "EXTERNAL AFFAIRS",
-  "ENTREPRENEURSHIP",
-  "RESOURCE DEVELOPMENT",
-  "SOCIAL COMMUNITY AFFAIRS",
-  "RESEARCH TECHNOLOGY",
+  { label: "STRUKTUR", href: "/kabinet/struktur" },
+  { label: "BPH", href: "/kabinet/bph" },
+  { label: "ORGANIZATIONAL AFFAIRS", href: "/kabinet/organizational-affairs" },
+  { label: "DEPARTMENT SECRETARY", href: "/kabinet/department-secretary" },
+  { label: "INTERNAL AFFAIRS", href: "/kabinet/internal-affairs" },
+  { label: "EXTERNAL AFFAIRS", href: "/kabinet/external-affairs" },
+  { label: "ENTREPRENEURSHIP", href: "/kabinet/entrepreneurship" },
+  {
+    label: "STUDENT RESOURCE DEVELOPMENT",
+    href: "/kabinet/student-resource-development",
+  },
+  {
+    label: "SOCIAL AFFAIRS AND COMMUNITY",
+    href: "/kabinet/social-affairs-and-community",
+  },
+  {
+    label: "RESEARCH AND TECHNOLOGY",
+    href: "/kabinet/research-and-technology",
+  },
 ];
 
 function DropdownList({
@@ -169,12 +178,12 @@ export default function Navbar() {
                     <div className="border-t border-black/20 bg-[#FCD704]">
                       {kabinetItems.map((item) => (
                         <Link
-                          key={`mobile-kabinet-${item}`}
-                          href="#"
+                          key={`mobile-kabinet-${item.label}`}
+                          href={item.href}
                           className="block border-b border-black/20 bg-[#FCD704] px-4 py-2 text-xs uppercase transition-colors hover:bg-[#FCEABF] active:bg-[#FCEABF] last:border-b-0"
                           onClick={() => setMobileMenuOpen(false)}
                         >
-                          {item}
+                          {item.label}
                         </Link>
                       ))}
                     </div>
@@ -242,12 +251,7 @@ export default function Navbar() {
               </button>
               {openMenu === "kabinet" ? (
                 <div className="absolute left-1/2 top-full -translate-x-1/2 pt-2">
-                  <DropdownList
-                    items={kabinetItems.map((item) => ({
-                      label: item,
-                      href: "#",
-                    }))}
-                  />
+                  <DropdownList items={kabinetItems} />
                 </div>
               ) : null}
             </div>
