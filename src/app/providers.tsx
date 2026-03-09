@@ -3,6 +3,8 @@
 "use client";
 
 import {
+  MutationCache,
+  QueryCache,
   QueryClient,
   QueryClientProvider,
   QueryOptions,
@@ -10,6 +12,7 @@ import {
 import { Toaster } from "react-hot-toast";
 
 import api from "@/lib/api";
+import { handleError } from "@/lib/handleError";
 
 const defaultQueryFn = async ({ queryKey }: QueryOptions) => {
   const { data } = await api.get(`${queryKey?.[0]}`);
@@ -21,6 +24,12 @@ const queryClient = new QueryClient({
       queryFn: defaultQueryFn,
     },
   },
+  queryCache: new QueryCache({
+    onError: handleError,
+  }),
+  mutationCache: new MutationCache({
+    onError: handleError,
+  }),
 });
 
 export default function Providers({ children }: { children: React.ReactNode }) {

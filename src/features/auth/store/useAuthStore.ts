@@ -3,8 +3,8 @@
 // Stores user data, tokens, and authentication status.
 
 import { User } from "@/features/auth/types";
+import { removeToken, setToken } from "@/lib/cookies";
 import { create } from "zustand";
-import { setToken, removeToken } from "@/lib/cookies";
 
 interface AuthState {
   user: User | null;
