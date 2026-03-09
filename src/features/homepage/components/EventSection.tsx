@@ -4,32 +4,32 @@ const departments = [
   {
     name: "Teknik Elektro",
     description: "Ut vel tortor quis enim facilisis tempus nec ornare dolor.",
-    href: "/event/teknik-elektro",
+    href: "https://www.its.ac.id/telektro/id/departemen-teknik-elektro-its/",
   },
   {
     name: "Teknik Informatika",
     description: "Ut vel tortor quis enim facilisis tempus nec ornare dolor.",
-    href: "/event/teknik-informatika",
+    href: "https://www.its.ac.id/informatika/id/departemen-teknik-informatika/",
   },
   {
     name: "Sistem Informasi",
     description: "Ut vel tortor quis enim facilisis tempus nec ornare dolor.",
-    href: "/event/sistem-informasi",
+    href: "https://www.its.ac.id/si/",
   },
   {
     name: "Teknik Komputer",
     description: "Ut vel tortor quis enim facilisis tempus nec ornare dolor.",
-    href: "/event/teknik-komputer",
+    href: "https://www.its.ac.id/komputer/id/departemen-teknik-komputer-its/",
   },
   {
     name: "Teknik Biomedik",
     description: "Ut vel tortor quis enim facilisis tempus nec ornare dolor.",
-    href: "/event/teknik-biomedik",
+    href: "https://www.its.ac.id/tbiomedik/id/beranda/",
   },
   {
     name: "Teknologi Informasi",
     description: "Ut vel tortor quis enim facilisis tempus nec ornare dolor.",
-    href: "/event/teknologi-informasi",
+    href: "https://www.its.ac.id/it/id/departemen-teknologi-informasi/",
   },
 ];
 
