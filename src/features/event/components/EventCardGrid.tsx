@@ -31,7 +31,15 @@ export default function EventCardGrid({ items }: EventCardGridProps) {
             <h2 className="mt-2 text-xl font-bold leading-tight text-black md:text-2xl">
               {item.title}
             </h2>
-            <p className="mt-2 text-lg leading-relaxed text-black/90">
+            <p
+              className="mt-2 text-lg leading-relaxed text-black/90"
+              style={{
+                display: "-webkit-box",
+                WebkitLineClamp: 4,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+              }}
+            >
               {item.description}
             </p>
           </article>

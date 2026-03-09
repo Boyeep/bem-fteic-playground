@@ -17,6 +17,7 @@ interface ActionTableProps {
   rows: ActionRow[];
   getEditHref?: (row: ActionRow) => string;
   onDelete?: (row: ActionRow) => void;
+  descriptionMaxLines?: number;
 }
 
 function toBadgeVariant(status: ActionStatus) {
@@ -36,6 +37,7 @@ export default function ActionTable({
   rows,
   getEditHref,
   onDelete,
+  descriptionMaxLines,
 }: ActionTableProps) {
   return (
     <div className="overflow-x-auto border border-[#E5E7EB] bg-white">
@@ -79,7 +81,21 @@ export default function ActionTable({
                 <p className="text-base font-semibold text-black">
                   {row.title}
                 </p>
-                <p className="text-sm text-gray-500">{row.description}</p>
+                <p
+                  className="text-sm text-gray-500"
+                  style={
+                    descriptionMaxLines
+                      ? {
+                          display: "-webkit-box",
+                          WebkitLineClamp: descriptionMaxLines,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                        }
+                      : undefined
+                  }
+                >
+                  {row.description}
+                </p>
               </td>
               <td className="px-4 py-3 align-middle">
                 <Badge

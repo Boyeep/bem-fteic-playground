@@ -151,6 +151,7 @@ export default function DashboardOverviewPage() {
                 onDelete={(row) =>
                   setDeleteTarget({ id: row.id, type: "event" })
                 }
+                descriptionMaxLines={3}
               />
             </section>
           </div>
