@@ -380,3 +380,5 @@ using (true);
 1. Set semua env vars yang dibutuhkan di Project Settings
 2. Tambahkan production URL ke Supabase Auth Redirect URLs
 3. Redeploy
+
+(18/03/2026)
