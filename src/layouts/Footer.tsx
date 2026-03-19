@@ -10,7 +10,7 @@ import {
   Youtube,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type TransitionEvent } from "react";
 
 import { departments } from "@/features/homepage/data/departments";
 
@@ -26,59 +26,127 @@ function FooterDepartmentItem({
   department: (typeof departments)[number];
 }) {
   const entries = [
-    { label: department.name, href: department.href },
+    { label: `Dept. ${department.name}`, href: department.href },
     ...(department.programs?.map((program) => ({
       label: program.name,
       href: program.href,
     })) ?? []),
   ];
   const [activeEntryIndex, setActiveEntryIndex] = useState(0);
+  const [outgoingEntryIndex, setOutgoingEntryIndex] = useState<number | null>(
+    null,
+  );
+  const [incomingEntryIndex, setIncomingEntryIndex] = useState<number | null>(
+    null,
+  );
+  const [isAnimating, setIsAnimating] = useState(false);
   const isSlidable = entries.length > 1;
+  const activeEntry = entries[activeEntryIndex];
+  const outgoingEntry =
+    outgoingEntryIndex !== null ? entries[outgoingEntryIndex] : null;
+  const incomingEntry =
+    incomingEntryIndex !== null ? entries[incomingEntryIndex] : null;
 
   const handleNextEntry = () => {
-    setActiveEntryIndex(
-      (previousIndex) => (previousIndex + 1) % entries.length,
-    );
+    if (!isSlidable || isAnimating) {
+      return;
+    }
+
+    const nextEntryIndex = (activeEntryIndex + 1) % entries.length;
+
+    setOutgoingEntryIndex(activeEntryIndex);
+    setIncomingEntryIndex(nextEntryIndex);
+    window.requestAnimationFrame(() => {
+      setIsAnimating(true);
+    });
+  };
+
+  const handleIncomingTransitionEnd = (
+    event: TransitionEvent<HTMLAnchorElement>,
+  ) => {
+    if (event.propertyName !== "transform" || incomingEntryIndex === null) {
+      return;
+    }
+
+    setActiveEntryIndex(incomingEntryIndex);
+    setOutgoingEntryIndex(null);
+    setIncomingEntryIndex(null);
+    setIsAnimating(false);
   };
 
   return (
-    <li className="flex items-center gap-2">
-      <div className="min-w-0 flex-1 overflow-hidden">
-        <div className="h-8 overflow-hidden">
-          <div
-            className="transition-transform duration-300 ease-out"
-            style={{ transform: `translateY(-${activeEntryIndex * 2}rem)` }}
+    <li className="grid w-[250px] max-w-full grid-cols-[minmax(0,1fr)_2rem] items-center gap-2">
+      <div className="relative h-8 overflow-hidden">
+        {outgoingEntry ? (
+          <Link
+            href={outgoingEntry.href}
+            target="_blank"
+            rel="noreferrer"
+            title={outgoingEntry.label}
+            className="pointer-events-none absolute left-0 top-1/2 inline-flex w-full -translate-y-1/2 items-center text-white/70 transition-[transform] duration-300"
+            style={{
+              transform: isAnimating
+                ? "translate(100%, -50%)"
+                : "translate(0, -50%)",
+            }}
           >
-            {entries.map((entry) => (
-              <div
-                key={`${department.name}-${entry.label}`}
-                className="flex h-8 items-center"
-              >
-                <Link
-                  href={entry.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  title={entry.label}
-                  className="relative inline-flex max-w-full items-center text-white/70 transition-colors hover:text-white after:absolute after:-bottom-0.5 after:left-0 after:h-[2px] after:w-0 after:bg-current after:transition-all after:duration-200 hover:after:w-full"
-                >
-                  <span className="truncate">{entry.label}</span>
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
+            <span className="truncate whitespace-nowrap">
+              {outgoingEntry.label}
+            </span>
+          </Link>
+        ) : null}
+
+        {!isAnimating && outgoingEntry === null ? (
+          <Link
+            href={activeEntry.href}
+            target="_blank"
+            rel="noreferrer"
+            title={activeEntry.label}
+            className="group absolute left-0 top-1/2 inline-flex w-full -translate-y-1/2 items-center text-white/70 transition-colors hover:text-white"
+            style={{
+              transform: "translate(0, -50%)",
+            }}
+          >
+            <span className="inline-block max-w-full truncate whitespace-nowrap bg-[linear-gradient(currentColor,currentColor)] bg-[length:0_2px] bg-left-bottom bg-no-repeat pb-0.5 transition-[background-size] duration-200 group-hover:bg-[length:100%_2px]">
+              {activeEntry.label}
+            </span>
+          </Link>
+        ) : null}
+
+        {incomingEntry ? (
+          <Link
+            href={incomingEntry.href}
+            target="_blank"
+            rel="noreferrer"
+            title={incomingEntry.label}
+            onTransitionEnd={handleIncomingTransitionEnd}
+            className="group absolute left-0 top-1/2 inline-flex w-full -translate-y-1/2 items-center text-white/70 transition-[transform,color] duration-300 hover:text-white"
+            style={{
+              transform: isAnimating
+                ? "translate(0, -50%)"
+                : "translate(-100%, -50%)",
+            }}
+          >
+            <span className="inline-block max-w-full truncate whitespace-nowrap bg-[linear-gradient(currentColor,currentColor)] bg-[length:0_2px] bg-left-bottom bg-no-repeat pb-0.5 transition-[background-size] duration-200 group-hover:bg-[length:100%_2px]">
+              {incomingEntry.label}
+            </span>
+          </Link>
+        ) : null}
       </div>
 
       {isSlidable ? (
         <button
           type="button"
           onClick={handleNextEntry}
-          className="shrink-0 text-white/70 transition-colors hover:text-white"
+          className="relative z-10 inline-flex h-8 w-8 items-center justify-center text-white/70 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+          disabled={isAnimating}
           aria-label={`Tampilkan prodi berikutnya untuk ${department.name}`}
         >
           <ChevronRight className="h-4 w-4" />
         </button>
-      ) : null}
+      ) : (
+        <span className="h-8 w-8" aria-hidden="true" />
+      )}
     </li>
   );
 }

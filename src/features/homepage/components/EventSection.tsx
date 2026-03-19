@@ -87,8 +87,8 @@ function DepartmentCardFace({
           className={[
             "mt-4 font-bold leading-tight",
             isProgramFace
-              ? "text-[1.7rem] md:text-[28px]"
-              : "text-3xl md:text-[34px]",
+              ? "text-[1.55rem] md:text-[26px]"
+              : "text-[1.75rem] md:text-[30px]",
             slide.titleClassName ?? "",
             isProgramFace
               ? "text-white"
@@ -106,7 +106,9 @@ function DepartmentCardFace({
         <p
           className={[
             "mt-3 leading-relaxed",
-            isProgramFace ? "text-lg md:text-[21px]" : "text-xl md:text-2xl",
+            isProgramFace
+              ? "text-base md:text-[19px]"
+              : "text-lg md:text-[21px]",
             isProgramFace
               ? "text-white/90"
               : [
@@ -128,7 +130,7 @@ function DepartmentCardFace({
               rel="noreferrer"
               className={[
                 "mt-6 inline-block w-fit text-sm font-medium uppercase transition-colors duration-300",
-                slide.variant === "department"
+                slide.variant === "department" || slide.variant === "program"
                   ? "relative after:absolute after:-bottom-0.5 after:left-0 after:h-[2px] after:w-0 after:bg-current after:transition-all after:duration-200 hover:after:w-full"
                   : "",
                 isProgramFace

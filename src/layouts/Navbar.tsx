@@ -43,7 +43,7 @@ function DropdownList({
           href={item.href}
           className={clsxm(
             "flex items-center justify-between border-b border-black/20 px-5 py-3 text-sm text-black",
-            "transition-colors hover:bg-[#FCEABF] last:border-b-0",
+            "transition-colors hover:bg-black hover:text-[#FCD704] last:border-b-0",
           )}
         >
           <span>{item.label}</span>
@@ -146,7 +146,7 @@ export default function Navbar() {
                         <Link
                           key={`mobile-event-${item.label}`}
                           href={item.href}
-                          className="block border-b border-black/20 bg-[#FCD704] px-4 py-2 text-xs uppercase transition-colors hover:bg-[#FCEABF] active:bg-[#FCEABF] last:border-b-0"
+                          className="block border-b border-black/20 bg-[#FCD704] px-4 py-2 text-xs uppercase text-black transition-colors hover:bg-black hover:text-[#FCD704] active:bg-black active:text-[#FCD704] last:border-b-0"
                           onClick={() => setMobileMenuOpen(false)}
                         >
                           {item.label}
@@ -180,7 +180,7 @@ export default function Navbar() {
                         <Link
                           key={`mobile-kabinet-${item.label}`}
                           href={item.href}
-                          className="block border-b border-black/20 bg-[#FCD704] px-4 py-2 text-xs uppercase transition-colors hover:bg-[#FCEABF] active:bg-[#FCEABF] last:border-b-0"
+                          className="block border-b border-black/20 bg-[#FCD704] px-4 py-2 text-xs uppercase text-black transition-colors hover:bg-black hover:text-[#FCD704] active:bg-black active:text-[#FCD704] last:border-b-0"
                           onClick={() => setMobileMenuOpen(false)}
                         >
                           {item.label}

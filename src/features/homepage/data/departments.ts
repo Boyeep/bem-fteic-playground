@@ -43,7 +43,7 @@ export const departments: Department[] = [
     description:
       "Departemen dengan tiga program studi sarjana yang bisa ditelusuri melalui animasi flip kartu.",
     href: "https://www.its.ac.id/informatika/id/departemen-teknik-informatika/",
-    titleClassName: "text-[2rem] md:text-[30px]",
+    titleClassName: "text-[1.85rem] md:text-[28px]",
     programs: [
       {
         name: "Teknik Informatika",
@@ -99,6 +99,6 @@ export const departments: Department[] = [
     name: "Teknologi Informasi",
     description: "Ut vel tortor quis enim facilisis tempus nec ornare dolor.",
     href: "https://www.its.ac.id/it/id/departemen-teknologi-informasi/",
-    titleClassName: "text-[2rem] md:text-[30px]",
+    titleClassName: "text-[1.85rem] md:text-[28px]",
   },
 ];
