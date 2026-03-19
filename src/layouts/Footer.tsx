@@ -1,4 +1,7 @@
+"use client";
+
 import {
+  ChevronRight,
   Instagram,
   Linkedin,
   Mail,
@@ -7,6 +10,9 @@ import {
   Youtube,
 } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+
+import { departments } from "@/features/homepage/data/departments";
 
 const pages = [
   { label: "Blog", href: "/blog" },
@@ -14,14 +20,68 @@ const pages = [
   { label: "Kabinet", href: "/#kabinet" },
   { label: "Galeri", href: "/galeri" },
 ];
-const event = [
-  { label: "Teknik Elektro", href: "/event/teknik-elektro" },
-  { label: "Teknik Informatika", href: "/event/teknik-informatika" },
-  { label: "Sistem Informasi", href: "/event/sistem-informasi" },
-  { label: "Teknik Komputer", href: "/event/teknik-komputer" },
-  { label: "Teknik Biomedik", href: "/event/teknik-biomedik" },
-  { label: "Teknologi Informasi", href: "/event/teknologi-informasi" },
-];
+function FooterDepartmentItem({
+  department,
+}: {
+  department: (typeof departments)[number];
+}) {
+  const entries = [
+    { label: department.name, href: department.href },
+    ...(department.programs?.map((program) => ({
+      label: program.name,
+      href: program.href,
+    })) ?? []),
+  ];
+  const [activeEntryIndex, setActiveEntryIndex] = useState(0);
+  const isSlidable = entries.length > 1;
+
+  const handleNextEntry = () => {
+    setActiveEntryIndex(
+      (previousIndex) => (previousIndex + 1) % entries.length,
+    );
+  };
+
+  return (
+    <li className="flex items-center gap-2">
+      <div className="min-w-0 flex-1 overflow-hidden">
+        <div className="h-8 overflow-hidden">
+          <div
+            className="transition-transform duration-300 ease-out"
+            style={{ transform: `translateY(-${activeEntryIndex * 2}rem)` }}
+          >
+            {entries.map((entry) => (
+              <div
+                key={`${department.name}-${entry.label}`}
+                className="flex h-8 items-center"
+              >
+                <Link
+                  href={entry.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  title={entry.label}
+                  className="relative inline-flex max-w-full items-center text-white/70 transition-colors hover:text-white after:absolute after:-bottom-0.5 after:left-0 after:h-[2px] after:w-0 after:bg-current after:transition-all after:duration-200 hover:after:w-full"
+                >
+                  <span className="truncate">{entry.label}</span>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {isSlidable ? (
+        <button
+          type="button"
+          onClick={handleNextEntry}
+          className="shrink-0 text-white/70 transition-colors hover:text-white"
+          aria-label={`Tampilkan prodi berikutnya untuk ${department.name}`}
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      ) : null}
+    </li>
+  );
+}
 
 export default function Footer() {
   return (
@@ -67,15 +127,11 @@ export default function Footer() {
                   Departemen
                 </h3>
                 <ul className="space-y-2 text-white/70">
-                  {event.map((item) => (
-                    <li key={item.label}>
-                      <Link
-                        href={item.href}
-                        className="relative inline-block transition-colors hover:text-white after:absolute after:-bottom-0.5 after:left-0 after:h-[2px] after:w-0 after:bg-current after:transition-all after:duration-200 hover:after:w-full"
-                      >
-                        {item.label}
-                      </Link>
-                    </li>
+                  {departments.map((department) => (
+                    <FooterDepartmentItem
+                      key={department.name}
+                      department={department}
+                    />
                   ))}
                 </ul>
               </div>
