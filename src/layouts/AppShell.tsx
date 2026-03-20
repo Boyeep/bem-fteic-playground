@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect } from "react";
 
 import { visitorService } from "@/features/analytics/services/visitorService";
 import Footer from "@/layouts/Footer";
@@ -16,7 +16,6 @@ const AUTH_ROUTES = new Set([
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const [isNavigating, setIsNavigating] = useState(false);
   const isAuthRoute = AUTH_ROUTES.has(pathname);
   const isReadBlogPage = pathname.startsWith("/blog/");
   const isReadEventPage = pathname.startsWith("/event/read/");
@@ -50,7 +49,6 @@ export default function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    setIsNavigating(true);
     const frameId = window.requestAnimationFrame(() => {
       window.scrollTo({
         top: 0,
@@ -58,22 +56,14 @@ export default function AppShell({ children }: { children: ReactNode }) {
         behavior: "auto",
       });
     });
-    const timeoutId = window.setTimeout(() => setIsNavigating(false), 320);
 
     return () => {
       window.cancelAnimationFrame(frameId);
-      window.clearTimeout(timeoutId);
     };
   }, [pathname]);
 
   return (
     <>
-      <div
-        className={[
-          "pointer-events-none fixed left-0 right-0 top-0 z-[70] h-[3px] origin-left bg-[#FCD704] transition-transform duration-300 ease-out",
-          isNavigating ? "scale-x-100" : "scale-x-0",
-        ].join(" ")}
-      />
       {!hideNavbar ? <Navbar /> : null}
       {children}
       {!hideFooter ? <Footer /> : null}
