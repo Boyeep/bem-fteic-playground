@@ -43,6 +43,19 @@ function clampOffset(
   };
 }
 
+function getMinZoom(naturalSize: Size, frameSize: Size) {
+  const containScale = Math.min(
+    frameSize.width / naturalSize.width,
+    frameSize.height / naturalSize.height,
+  );
+  const coverScale = Math.max(
+    frameSize.width / naturalSize.width,
+    frameSize.height / naturalSize.height,
+  );
+
+  return coverScale / containScale;
+}
+
 export default function ImageCropModal({
   isOpen,
   file,
@@ -102,17 +115,29 @@ export default function ImageCropModal({
 
   useEffect(() => {
     if (!naturalSize || !frameSize) return;
+    const minimumZoom = getMinZoom(naturalSize, frameSize);
+    setZoom((currentZoom) => Math.max(minimumZoom, currentZoom));
     setOffset((currentOffset) =>
-      clampOffset(currentOffset, zoom, naturalSize, frameSize),
+      clampOffset(
+        currentOffset,
+        Math.max(minimumZoom, zoom),
+        naturalSize,
+        frameSize,
+      ),
     );
   }, [zoom, naturalSize, frameSize]);
+
+  const minimumZoom = useMemo(() => {
+    if (!naturalSize || !frameSize) return 1;
+    return getMinZoom(naturalSize, frameSize);
+  }, [naturalSize, frameSize]);
 
   const imageStyle = useMemo(() => {
     if (!naturalSize || !frameSize) {
       return undefined;
     }
 
-    const baseScale = Math.max(
+    const baseScale = Math.min(
       frameSize.width / naturalSize.width,
       frameSize.height / naturalSize.height,
     );
@@ -120,7 +145,7 @@ export default function ImageCropModal({
     return {
       width: naturalSize.width,
       height: naturalSize.height,
-      transform: `translate(${offset.x}px, ${offset.y}px) scale(${baseScale * zoom})`,
+      transform: `translate(calc(-50% + ${offset.x}px), calc(-50% + ${offset.y}px)) scale(${baseScale * zoom})`,
     };
   }, [naturalSize, frameSize, offset.x, offset.y, zoom]);
 
@@ -234,10 +259,15 @@ export default function ImageCropModal({
                   alt="Crop preview"
                   draggable={false}
                   onLoad={(event) => {
-                    setNaturalSize({
+                    const nextNaturalSize = {
                       width: event.currentTarget.naturalWidth,
                       height: event.currentTarget.naturalHeight,
-                    });
+                    };
+                    setNaturalSize(nextNaturalSize);
+                    if (frameSize) {
+                      setZoom(getMinZoom(nextNaturalSize, frameSize));
+                    }
+                    setOffset({ x: 0, y: 0 });
                   }}
                   className="absolute left-1/2 top-1/2 max-w-none select-none touch-none will-change-transform"
                   style={imageStyle}
@@ -256,7 +286,7 @@ export default function ImageCropModal({
                 <button
                   type="button"
                   onClick={() => {
-                    setZoom(1);
+                    setZoom(minimumZoom);
                     setOffset({ x: 0, y: 0 });
                   }}
                   className="inline-flex items-center gap-1 text-xs font-medium uppercase text-black/70 transition-colors hover:text-black"
@@ -268,8 +298,8 @@ export default function ImageCropModal({
 
               <input
                 type="range"
-                min="1"
-                max="3"
+                min={minimumZoom}
+                max={Math.max(minimumZoom + 2, 3)}
                 step="0.01"
                 value={zoom}
                 onChange={(event) => setZoom(Number(event.target.value))}
