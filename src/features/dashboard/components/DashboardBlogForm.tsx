@@ -4,9 +4,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, ChevronLeft, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
+import ImageCropModal from "@/components/form/ImageCropModal";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { blogService } from "@/features/blog/services/blogService";
 import { BlogStatus } from "@/features/blog/types";
@@ -50,6 +51,8 @@ export default function DashboardBlogForm({
     initialValues?.status ?? "PUBLISHED",
   );
   const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [pendingCropFile, setPendingCropFile] = useState<File | null>(null);
+  const [croppedPreviewUrl, setCroppedPreviewUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isValid = useMemo(
@@ -60,6 +63,17 @@ export default function DashboardBlogForm({
       (coverImage.trim().length > 0 || Boolean(coverFile)),
     [title, category, content, coverImage, coverFile],
   );
+
+  useEffect(() => {
+    if (!coverFile) {
+      setCroppedPreviewUrl("");
+      return;
+    }
+
+    const nextPreviewUrl = URL.createObjectURL(coverFile);
+    setCroppedPreviewUrl(nextPreviewUrl);
+    return () => URL.revokeObjectURL(nextPreviewUrl);
+  }, [coverFile]);
 
   const handleSubmit = async () => {
     if (isSubmitting) return;
@@ -175,18 +189,36 @@ export default function DashboardBlogForm({
                     toast.error("Ukuran gambar maksimal 5MB.");
                     return;
                   }
-                  setCoverFile(selected);
-                  setCoverImage("");
+                  setPendingCropFile(selected);
+                  event.target.value = "";
                 }}
               />
             </label>
             {coverFile ? (
-              <p className="mt-2 text-xs text-black/70">{coverFile.name}</p>
+              <>
+                <div className="mt-3 w-40 overflow-hidden border border-[#C8C8C8] bg-white">
+                  <img
+                    src={croppedPreviewUrl}
+                    alt="Cropped blog cover preview"
+                    className="aspect-[16/9] h-auto w-full object-cover"
+                  />
+                </div>
+                <p className="mt-2 text-xs text-black/70">{coverFile.name}</p>
+              </>
             ) : null}
             {!coverFile && coverImage ? (
-              <p className="mt-2 line-clamp-1 text-xs text-black/70">
-                Current: {coverImage}
-              </p>
+              <>
+                <div className="mt-3 w-40 overflow-hidden border border-[#C8C8C8] bg-white">
+                  <img
+                    src={coverImage}
+                    alt="Current blog cover"
+                    className="aspect-[16/9] h-auto w-full object-cover"
+                  />
+                </div>
+                <p className="mt-2 line-clamp-1 text-xs text-black/70">
+                  Current: {coverImage}
+                </p>
+              </>
             ) : null}
           </div>
         </div>
@@ -271,6 +303,22 @@ export default function DashboardBlogForm({
           </Link>
         </div>
       </section>
+
+      <ImageCropModal
+        isOpen={Boolean(pendingCropFile)}
+        file={pendingCropFile}
+        title="Sesuaikan Cover Blog"
+        aspectRatio={16 / 9}
+        targetWidth={1600}
+        targetHeight={900}
+        onCancel={() => setPendingCropFile(null)}
+        onConfirm={async (croppedFile) => {
+          setCoverFile(croppedFile);
+          setCoverImage("");
+          setPendingCropFile(null);
+          toast.success("Cover blog siap digunakan.");
+        }}
+      />
     </main>
   );
 }

@@ -4,9 +4,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
+import ImageCropModal from "@/components/form/ImageCropModal";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { galeriService } from "@/features/galeri/services/galeriService";
 
@@ -37,6 +38,8 @@ export default function DashboardGaleriForm({
   );
   const [imageUrl, setImageUrl] = useState(initialValues?.imageUrl ?? "");
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [pendingCropFile, setPendingCropFile] = useState<File | null>(null);
+  const [croppedPreviewUrl, setCroppedPreviewUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isValid = useMemo(
@@ -47,6 +50,17 @@ export default function DashboardGaleriForm({
       (imageUrl.trim().length > 0 || Boolean(imageFile)),
     [title, link, takenAt, imageUrl, imageFile],
   );
+
+  useEffect(() => {
+    if (!imageFile) {
+      setCroppedPreviewUrl("");
+      return;
+    }
+
+    const nextPreviewUrl = URL.createObjectURL(imageFile);
+    setCroppedPreviewUrl(nextPreviewUrl);
+    return () => URL.revokeObjectURL(nextPreviewUrl);
+  }, [imageFile]);
 
   const handleSubmit = async () => {
     if (isSubmitting) return;
@@ -180,11 +194,32 @@ export default function DashboardGaleriForm({
                     toast.error("Ukuran gambar maksimal 5MB.");
                     return;
                   }
-                  setImageFile(selected);
-                  setImageUrl("");
+                  setPendingCropFile(selected);
+                  event.target.value = "";
                 }}
               />
             </label>
+            {imageFile ? (
+              <>
+                <div className="mt-3 w-40 overflow-hidden border border-[#C8C8C8] bg-white">
+                  <img
+                    src={croppedPreviewUrl}
+                    alt="Cropped gallery image preview"
+                    className="aspect-[16/9] h-auto w-full object-cover"
+                  />
+                </div>
+                <p className="mt-2 text-xs text-black/70">{imageFile.name}</p>
+              </>
+            ) : null}
+            {!imageFile && imageUrl ? (
+              <div className="mt-3 w-40 overflow-hidden border border-[#C8C8C8] bg-white">
+                <img
+                  src={imageUrl}
+                  alt="Current gallery image"
+                  className="aspect-[16/9] h-auto w-full object-cover"
+                />
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -209,6 +244,22 @@ export default function DashboardGaleriForm({
           </Link>
         </div>
       </section>
+
+      <ImageCropModal
+        isOpen={Boolean(pendingCropFile)}
+        file={pendingCropFile}
+        title="Sesuaikan Gambar Galeri"
+        aspectRatio={16 / 9}
+        targetWidth={1600}
+        targetHeight={900}
+        onCancel={() => setPendingCropFile(null)}
+        onConfirm={async (croppedFile) => {
+          setImageFile(croppedFile);
+          setImageUrl("");
+          setPendingCropFile(null);
+          toast.success("Gambar galeri siap digunakan.");
+        }}
+      />
     </main>
   );
 }

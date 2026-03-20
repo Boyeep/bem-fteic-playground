@@ -4,9 +4,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, ChevronLeft, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
+import ImageCropModal from "@/components/form/ImageCropModal";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { eventService } from "@/features/event/services/eventService";
 import { EventStatus } from "@/features/event/types";
@@ -56,6 +57,8 @@ export default function DashboardEventForm({
     initialValues?.status ?? "ONGOING",
   );
   const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [pendingCropFile, setPendingCropFile] = useState<File | null>(null);
+  const [croppedPreviewUrl, setCroppedPreviewUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isValid = useMemo(
@@ -67,6 +70,17 @@ export default function DashboardEventForm({
       (coverImage.trim().length > 0 || Boolean(coverFile)),
     [title, category, description, eventDate, coverImage, coverFile],
   );
+
+  useEffect(() => {
+    if (!coverFile) {
+      setCroppedPreviewUrl("");
+      return;
+    }
+
+    const nextPreviewUrl = URL.createObjectURL(coverFile);
+    setCroppedPreviewUrl(nextPreviewUrl);
+    return () => URL.revokeObjectURL(nextPreviewUrl);
+  }, [coverFile]);
 
   const handleSubmit = async () => {
     if (isSubmitting) return;
@@ -183,11 +197,32 @@ export default function DashboardEventForm({
                     toast.error("Ukuran gambar maksimal 5MB.");
                     return;
                   }
-                  setCoverFile(selected);
-                  setCoverImage("");
+                  setPendingCropFile(selected);
+                  event.target.value = "";
                 }}
               />
             </label>
+            {coverFile ? (
+              <>
+                <div className="mt-3 w-40 overflow-hidden border border-[#C8C8C8] bg-white">
+                  <img
+                    src={croppedPreviewUrl}
+                    alt="Cropped event cover preview"
+                    className="aspect-[16/9] h-auto w-full object-cover"
+                  />
+                </div>
+                <p className="mt-2 text-xs text-black/70">{coverFile.name}</p>
+              </>
+            ) : null}
+            {!coverFile && coverImage ? (
+              <div className="mt-3 w-40 overflow-hidden border border-[#C8C8C8] bg-white">
+                <img
+                  src={coverImage}
+                  alt="Current event cover"
+                  className="aspect-[16/9] h-auto w-full object-cover"
+                />
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -283,6 +318,22 @@ export default function DashboardEventForm({
           </Link>
         </div>
       </section>
+
+      <ImageCropModal
+        isOpen={Boolean(pendingCropFile)}
+        file={pendingCropFile}
+        title="Sesuaikan Cover Event"
+        aspectRatio={16 / 9}
+        targetWidth={1600}
+        targetHeight={900}
+        onCancel={() => setPendingCropFile(null)}
+        onConfirm={async (croppedFile) => {
+          setCoverFile(croppedFile);
+          setCoverImage("");
+          setPendingCropFile(null);
+          toast.success("Cover event siap digunakan.");
+        }}
+      />
     </main>
   );
 }

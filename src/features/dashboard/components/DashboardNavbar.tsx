@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
+import ImageCropModal from "@/components/form/ImageCropModal";
 import { profileService } from "@/features/auth/services/profileService";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import ProfileDropdown from "@/features/dashboard/components/ProfileDropdown";
@@ -25,6 +26,7 @@ export default function DashboardNavbar() {
   const [editedName, setEditedName] = useState("");
   const [isSavingName, setIsSavingName] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
   const popupRef = useRef<HTMLDivElement | null>(null);
   const mobileNavRef = useRef<HTMLDivElement | null>(null);
   const mobileMenuButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -77,37 +79,8 @@ export default function DashboardNavbar() {
             event.target.value = "";
             return;
           }
-
-          setIsUploadingPhoto(true);
-          try {
-            const profile = await profileService.uploadAvatar(user.id, file);
-            const { error: metadataError } = await supabase.auth.updateUser({
-              data: { avatar_url: profile.avatar_url },
-            });
-
-            if (metadataError) {
-              throw new Error(
-                metadataError.message || "Gagal menyinkronkan foto profil.",
-              );
-            }
-
-            setUser({
-              ...user,
-              email: profile.email || user.email,
-              username: profile.username || user.username,
-              avatarUrl: profile.avatar_url || null,
-            });
-            toast.success("Foto profil berhasil diubah.");
-          } catch (error) {
-            const message =
-              error instanceof Error
-                ? error.message
-                : "Gagal mengubah foto profil.";
-            toast.error(message);
-          } finally {
-            setIsUploadingPhoto(false);
-            event.target.value = "";
-          }
+          setPendingAvatarFile(file);
+          event.target.value = "";
         }}
       />
       <div className="mx-auto flex h-[56px] w-full max-w-[1600px] items-center justify-between px-4 md:px-8">
@@ -272,6 +245,54 @@ export default function DashboardNavbar() {
           )}
         </div>
       ) : null}
+
+      <ImageCropModal
+        isOpen={Boolean(pendingAvatarFile)}
+        file={pendingAvatarFile}
+        title="Sesuaikan Foto Profil"
+        aspectRatio={1}
+        cropShape="circle"
+        targetWidth={800}
+        targetHeight={800}
+        onCancel={() => setPendingAvatarFile(null)}
+        onConfirm={async (croppedFile) => {
+          if (!user) return;
+
+          setIsUploadingPhoto(true);
+          try {
+            const profile = await profileService.uploadAvatar(
+              user.id,
+              croppedFile,
+            );
+            const { error: metadataError } = await supabase.auth.updateUser({
+              data: { avatar_url: profile.avatar_url },
+            });
+
+            if (metadataError) {
+              throw new Error(
+                metadataError.message || "Gagal menyinkronkan foto profil.",
+              );
+            }
+
+            setUser({
+              ...user,
+              email: profile.email || user.email,
+              username: profile.username || user.username,
+              avatarUrl: profile.avatar_url || null,
+            });
+            setPendingAvatarFile(null);
+            toast.success("Foto profil berhasil diubah.");
+          } catch (error) {
+            const message =
+              error instanceof Error
+                ? error.message
+                : "Gagal mengubah foto profil.";
+            toast.error(message);
+          } finally {
+            setIsUploadingPhoto(false);
+          }
+        }}
+      />
     </header>
   );
 }

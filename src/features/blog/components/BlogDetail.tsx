@@ -17,7 +17,7 @@ export default function BlogDetail({ blog }: BlogDetailProps) {
   const paragraphs = blog.content.split("\n\n");
 
   return (
-    <article className="mx-auto w-full max-w-6xl bg-white px-6 pb-6 pt-2 md:pb-10 md:pt-4">
+    <article className="mx-auto w-full max-w-[88rem] bg-white px-6 pb-6 pt-2 md:px-8 md:pb-10 md:pt-4 lg:px-10">
       <div className="relative mb-6 h-56 w-full overflow-hidden border border-brand-blue/30 md:h-[360px]">
         <img
           src={blog.coverImage}
@@ -37,7 +37,7 @@ export default function BlogDetail({ blog }: BlogDetailProps) {
         Kembali
       </Link>
 
-      <h1 className="mt-1 max-w-5xl break-words pb-1 text-3xl font-bold leading-[1.08] text-black [overflow-wrap:anywhere] md:text-5xl">
+      <h1 className="mt-1 max-w-[72rem] break-words pb-1 text-3xl font-bold leading-[1.08] text-black [overflow-wrap:anywhere] md:text-5xl">
         {blog.title}
       </h1>
       <div className="mt-5 flex items-center gap-3">
@@ -54,7 +54,7 @@ export default function BlogDetail({ blog }: BlogDetailProps) {
         )}
         <p className="text-lg text-black/60 md:text-xl">{blog.author}</p>
       </div>
-      <div className="mt-5 space-y-4 text-base leading-relaxed text-black md:text-xl">
+      <div className="mt-5 max-w-[78rem] space-y-4 text-base leading-relaxed text-black md:text-xl">
         {paragraphs.map((paragraph, index) => (
           <p
             key={`${blog.id}-paragraph-${index}`}
